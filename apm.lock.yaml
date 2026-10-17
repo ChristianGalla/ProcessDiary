@@ -1,0 +1,28 @@
+lockfile_version: '1'
+apm_version: 0.32.0
+dependencies:
+- repo_url: github/awesome-copilot
+  name: awesome-copilot-implementation-plan
+  host: github.com
+  resolved_commit: cb64ad12e32737ae764becd6885462e9b4c7cb00
+  resolved_ref: main
+  version: 1.0.0
+  virtual_path: agents/implementation-plan.agent.md
+  is_virtual: true
+  package_type: apm_package
+  content_hash: sha256:02db774aec7015a1fd816c0b043d24a95b0f82d31cf332b97e10fd590c1abb23
+  target_subset:
+  - agent-skills
+- repo_url: github/awesome-copilot
+  name: awesome-copilot-software-engineer-agent-v1
+  host: github.com
+  resolved_commit: cb64ad12e32737ae764becd6885462e9b4c7cb00
+  resolved_ref: main
+  version: 1.0.0
+  virtual_path: agents/software-engineer-agent-v1.agent.md
+  is_virtual: true
+  package_type: apm_package
+  content_hash: sha256:2a11ebcc3a3c2ad023f2159a691b35cca83b4abc7125b7478619ab4561b29101
+  target_subset:
+  - agent-skills
+deployments: []
