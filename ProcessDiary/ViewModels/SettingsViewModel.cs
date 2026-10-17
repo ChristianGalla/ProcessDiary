@@ -23,25 +23,25 @@ public sealed partial class SettingsViewModel : ObservableObject
     private readonly ILogger<SettingsViewModel> _logger;
 
     [ObservableProperty]
-    private string _screenshotFolder = string.Empty;
+    public partial string ScreenshotFolder { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private double _intervalSeconds;
+    public partial double IntervalSeconds { get; set; }
 
     [ObservableProperty]
-    private CaptureModeOption _selectedMode = AllModes[0];
+    public partial CaptureModeOption SelectedMode { get; set; } = AllModes[0];
 
     [ObservableProperty]
-    private bool _captureOnActivityChange;
+    public partial bool CaptureOnActivityChange { get; set; }
 
     [ObservableProperty]
-    private bool _retentionEnabled;
+    public partial bool RetentionEnabled { get; set; }
 
     [ObservableProperty]
-    private double _retentionDays = 30;
+    public partial double RetentionDays { get; set; } = 30;
 
     [ObservableProperty]
-    private string? _message;
+    public partial string? Message { get; set; }
 
     /// <summary>Initializes the view model and loads the current settings.</summary>
     /// <param name="store">Stores the settings.</param>

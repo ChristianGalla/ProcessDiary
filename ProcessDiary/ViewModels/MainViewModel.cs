@@ -21,7 +21,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     [NotifyPropertyChangedFor(nameof(StatusText))]
     [NotifyPropertyChangedFor(nameof(PrimaryActionText))]
     [NotifyPropertyChangedFor(nameof(CanCapture))]
-    private RecordingState _state;
+    public partial RecordingState State { get; set; }
 
     /// <summary>Initializes the view model and starts following the recording state.</summary>
     /// <param name="scheduler">Controls recording.</param>
@@ -41,7 +41,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _navigation = navigation;
         _exit = exit;
         _logger = logger;
-        _state = scheduler.State;
+        State = scheduler.State;
         _scheduler.StateChanged += OnSchedulerStateChanged;
     }
 

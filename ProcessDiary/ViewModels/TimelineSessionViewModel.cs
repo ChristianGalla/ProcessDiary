@@ -8,7 +8,7 @@ namespace ProcessDiary.ViewModels;
 public sealed partial class TimelineSessionViewModel : ObservableObject
 {
     [ObservableProperty]
-    private bool _isSelected;
+    public partial bool IsSelected { get; set; }
 
     /// <summary>Initializes the view model.</summary>
     /// <param name="entry">The timeline entry to show.</param>

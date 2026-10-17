@@ -10,7 +10,7 @@ namespace ProcessDiary.ViewModels;
 public sealed partial class TimelineScreenshotViewModel : ObservableObject
 {
     [ObservableProperty]
-    private bool _isSelected;
+    public partial bool IsSelected { get; set; }
 
     /// <summary>Initializes the view model.</summary>
     /// <param name="item">The screenshot with the state of its file.</param>

@@ -15,16 +15,16 @@ public sealed partial class StatisticsViewModel : ObservableObject
     private readonly ILogger<StatisticsViewModel> _logger;
 
     [ObservableProperty]
-    private bool _isLoading;
+    public partial bool IsLoading { get; set; }
 
     [ObservableProperty]
-    private bool _groupByCategory;
+    public partial bool GroupByCategory { get; set; }
 
     [ObservableProperty]
-    private string? _message;
+    public partial string? Message { get; set; }
 
     [ObservableProperty]
-    private string _totalText = string.Empty;
+    public partial string TotalText { get; set; } = string.Empty;
 
     /// <summary>Initializes the view model.</summary>
     /// <param name="reports">Builds the reports.</param>

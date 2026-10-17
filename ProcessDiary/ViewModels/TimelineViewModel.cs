@@ -18,14 +18,14 @@ public sealed partial class TimelineViewModel : ObservableObject
     private readonly ILogger<TimelineViewModel> _logger;
 
     [ObservableProperty]
-    private bool _isLoading;
+    public partial bool IsLoading { get; set; }
 
     [ObservableProperty]
-    private string? _message;
+    public partial string? Message { get; set; }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsEmpty))]
-    private bool _hasLoaded;
+    public partial bool HasLoaded { get; set; }
 
     /// <summary>Initializes the view model.</summary>
     /// <param name="timeline">Source of the timeline.</param>

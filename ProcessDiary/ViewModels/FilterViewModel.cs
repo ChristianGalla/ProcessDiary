@@ -19,22 +19,22 @@ public sealed partial class FilterViewModel : ObservableObject
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ShowDate))]
     [NotifyPropertyChangedFor(nameof(ShowRange))]
-    private FilterOption _selectedOption = AllOptions[0];
+    public partial FilterOption SelectedOption { get; set; } = AllOptions[0];
 
     [ObservableProperty]
-    private DateTimeOffset? _selectedDate = DateTimeOffset.Now.Date;
+    public partial DateTimeOffset? SelectedDate { get; set; } = DateTimeOffset.Now.Date;
 
     [ObservableProperty]
-    private DateTimeOffset? _fromDate = DateTimeOffset.Now.Date;
+    public partial DateTimeOffset? FromDate { get; set; } = DateTimeOffset.Now.Date;
 
     [ObservableProperty]
-    private TimeSpan _fromTime = TimeSpan.Zero;
+    public partial TimeSpan FromTime { get; set; } = TimeSpan.Zero;
 
     [ObservableProperty]
-    private DateTimeOffset? _toDate = DateTimeOffset.Now.Date;
+    public partial DateTimeOffset? ToDate { get; set; } = DateTimeOffset.Now.Date;
 
     [ObservableProperty]
-    private TimeSpan _toTime = new(23, 59, 0);
+    public partial TimeSpan ToTime { get; set; } = new(23, 59, 0);
 
     /// <summary>Gets the selectable periods.</summary>
     public IReadOnlyList<FilterOption> Options => AllOptions;
