@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window
+    x:Class="ProcessDiary.Views.RecordingOverlayWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:presentation="using:ProcessDiary.Presentation"
+    Title="ProcessDiary status">
+
+    <Border
+        Background="#E6202020"
+        CornerRadius="8"
+        Padding="12,0">
+        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+            <Ellipse
+                Width="12"
+                Height="12"
+                Fill="{x:Bind presentation:StatusPresentation.GetBrush(ViewModel.State), Mode=OneWay}" />
+            <TextBlock
+                Foreground="White"
+                Text="{x:Bind ViewModel.StatusText, Mode=OneWay}"
+                VerticalAlignment="Center"
+                TextTrimming="CharacterEllipsis" />
+        </StackPanel>
+    </Border>
+</Window>

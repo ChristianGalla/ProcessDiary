@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="ProcessDiary.Views.FilterBar"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <StackPanel Orientation="Horizontal" Spacing="12">
+        <ComboBox
+            Header="Period"
+            MinWidth="240"
+            DisplayMemberPath="Label"
+            ItemsSource="{x:Bind Filter.Options, Mode=OneWay}"
+            SelectedItem="{x:Bind Filter.SelectedOption, Mode=TwoWay}" />
+        <CalendarDatePicker
+            Header="Date"
+            Date="{x:Bind Filter.SelectedDate, Mode=TwoWay}"
+            Visibility="{x:Bind Filter.ShowDate, Mode=OneWay}" />
+        <StackPanel
+            Orientation="Horizontal"
+            Spacing="12"
+            Visibility="{x:Bind Filter.ShowRange, Mode=OneWay}">
+            <CalendarDatePicker Header="From" Date="{x:Bind Filter.FromDate, Mode=TwoWay}" />
+            <TimePicker Header="From time" ClockIdentifier="24HourClock" Time="{x:Bind Filter.FromTime, Mode=TwoWay}" />
+            <CalendarDatePicker Header="To" Date="{x:Bind Filter.ToDate, Mode=TwoWay}" />
+            <TimePicker Header="To time" ClockIdentifier="24HourClock" Time="{x:Bind Filter.ToTime, Mode=TwoWay}" />
+        </StackPanel>
+    </StackPanel>
+</UserControl>

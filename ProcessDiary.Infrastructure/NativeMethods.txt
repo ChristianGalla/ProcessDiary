@@ -3,3 +3,4 @@ GetWindowText
 GetWindowTextLength
 GetWindowThreadProcessId
 MonitorFromWindow
+SetWindowDisplayAffinity

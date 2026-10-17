@@ -1,46 +1,78 @@
-﻿using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-using Microsoft.UI.Xaml.Shapes;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.ApplicationModel;
-using Windows.ApplicationModel.Activation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.UI.Dispatching;
+using Microsoft.UI.Xaml;
+using ProcessDiary.Application;
+using ProcessDiary.Infrastructure;
+using ProcessDiary.Infrastructure.Logging;
+using ProcessDiary.Services;
+using ProcessDiary.ViewModels;
+using ProcessDiary.Views;
 
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+namespace ProcessDiary;
 
-namespace ProcessDiary {
-    /// <summary>
-    /// Provides application-specific behavior to supplement the default Application class.
-    /// </summary>
-    public partial class App : Application {
-        private Window? _window;
+/// <summary>Application entry point and composition root.</summary>
+public partial class App : Microsoft.UI.Xaml.Application
+{
+    private IHost? _host;
+    private MainWindow? _window;
+    private RecordingOverlayWindow? _overlay;
 
-        /// <summary>
-        /// Initializes the singleton application object.  This is the first line of authored code
-        /// executed, and as such is the logical equivalent of main() or WinMain().
-        /// </summary>
-        public App() {
-            InitializeComponent();
-        }
+    /// <summary>Initializes the application.</summary>
+    public App()
+    {
+        InitializeComponent();
+    }
 
-        /// <summary>
-        /// Invoked when the application is launched.
-        /// </summary>
-        /// <param name="args">Details about the launch request and process.</param>
-        protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args) {
-            _window = new MainWindow();
-            _window.Activate();
-        }
+    /// <summary>Starts the host, then shows the main window, the tray icon and the status overlay.</summary>
+    /// <param name="args">Details about the launch request.</param>
+    protected override async void OnLaunched(LaunchActivatedEventArgs args)
+    {
+        var host = BuildHost(DispatcherQueue.GetForCurrentThread());
+        _host = host;
+        await host.StartAsync();
+
+        _window = host.Services.GetRequiredService<MainWindow>();
+        _window.Activate();
+
+        host.Services.GetRequiredService<TrayIconService>().Initialize();
+
+        // Recording is never hidden: the overlay shows the state from the first moment.
+        _overlay = host.Services.GetRequiredService<RecordingOverlayWindow>();
+        _overlay.ShowWithoutActivation();
+
+        host.Services.GetRequiredService<ILogger<App>>().LogInformation("ProcessDiary started");
+    }
+
+    private static IHost BuildHost(DispatcherQueue queue)
+    {
+        var builder = Host.CreateApplicationBuilder();
+        builder.Logging.AddProcessDiaryLogging();
+
+        var services = builder.Services;
+        services.AddProcessDiaryInfrastructure();
+        services.AddProcessDiaryApplication();
+
+        services.AddSingleton<IUiDispatcher>(new UiDispatcher(queue));
+        services.AddSingleton<IShellWindowService, ShellWindowService>();
+        services.AddSingleton<INavigationService, NavigationService>();
+        services.AddSingleton<IDialogService, DialogService>();
+        services.AddSingleton<IFolderPickerService, FolderPickerService>();
+        services.AddSingleton<IApplicationExitService, ApplicationExitService>();
+        services.AddSingleton<TrayIconService>();
+
+        services.AddSingleton<MainViewModel>();
+        services.AddSingleton<TimelineViewModel>();
+        services.AddSingleton<StatisticsViewModel>();
+        services.AddSingleton<SettingsViewModel>();
+
+        services.AddSingleton<MainWindow>();
+        services.AddSingleton<RecordingOverlayWindow>();
+        services.AddTransient<TimelinePage>();
+        services.AddTransient<StatisticsPage>();
+        services.AddTransient<SettingsPage>();
+
+        return builder.Build();
     }
 }

@@ -67,11 +67,15 @@ internal sealed class CaptureScheduler : BackgroundService, ICaptureScheduler
     public RecordingState State => _state;
 
     /// <inheritdoc />
+    public DateTimeOffset? RecordingStartedAt { get; private set; }
+
+    /// <inheritdoc />
     public async Task StartRecordingAsync(CancellationToken cancellationToken)
     {
         await _gate.WaitAsync(cancellationToken);
         try
         {
+            RecordingStartedAt = _time.GetLocalNow();
             SetState(RecordingState.Recording);
         }
         finally

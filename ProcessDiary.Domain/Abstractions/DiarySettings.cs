@@ -6,9 +6,11 @@ namespace ProcessDiary.Domain.Abstractions;
 /// <param name="CaptureInterval">Time between interval screenshots.</param>
 /// <param name="CaptureOnActivityChange">Whether a screenshot is taken when the foreground application changes.</param>
 /// <param name="ForegroundPollInterval">How often the foreground application is checked.</param>
+/// <param name="RetentionDays">Number of days data is kept; older data is deleted automatically. Null keeps data until the user deletes it.</param>
 public sealed record DiarySettings(
     string ScreenshotFolder,
     CaptureMode CaptureMode,
     TimeSpan CaptureInterval,
     bool CaptureOnActivityChange,
-    TimeSpan ForegroundPollInterval);
+    TimeSpan ForegroundPollInterval,
+    int? RetentionDays = null);

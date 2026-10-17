@@ -3,10 +3,7 @@
     x:Class="ProcessDiary.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:ProcessDiary"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
+    xmlns:presentation="using:ProcessDiary.Presentation"
     Title="ProcessDiary">
 
     <Window.SystemBackdrop>
@@ -14,6 +11,63 @@
     </Window.SystemBackdrop>
 
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
 
+        <Border Padding="16,10" Background="{ThemeResource LayerFillColorDefaultBrush}">
+            <Grid ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Recording status badge: always visible while the window is open. -->
+                <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                    <Ellipse
+                        Width="14"
+                        Height="14"
+                        Fill="{x:Bind presentation:StatusPresentation.GetBrush(ViewModel.State), Mode=OneWay}" />
+                    <TextBlock
+                        Text="{x:Bind ViewModel.StatusText, Mode=OneWay}"
+                        Style="{StaticResource BodyStrongTextBlockStyle}"
+                        VerticalAlignment="Center" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                    <Button
+                        Content="{x:Bind ViewModel.PrimaryActionText, Mode=OneWay}"
+                        Command="{x:Bind ViewModel.PrimaryActionCommand}"
+                        Style="{StaticResource AccentButtonStyle}" />
+                    <Button Content="Take screenshot now" Command="{x:Bind ViewModel.CaptureNowCommand}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <NavigationView
+            x:Name="Navigation"
+            Grid.Row="1"
+            PaneDisplayMode="Left"
+            IsBackButtonVisible="Collapsed"
+            IsSettingsVisible="True"
+            SelectionChanged="OnNavigationSelectionChanged">
+            <NavigationView.MenuItems>
+                <NavigationViewItem Content="Timeline" Tag="timeline">
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Clock" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem Content="Statistics" Tag="statistics">
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Calculator" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+            </NavigationView.MenuItems>
+            <ContentControl
+                x:Name="PageHost"
+                HorizontalContentAlignment="Stretch"
+                VerticalContentAlignment="Stretch" />
+        </NavigationView>
     </Grid>
 </Window>

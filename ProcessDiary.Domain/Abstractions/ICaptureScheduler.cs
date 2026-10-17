@@ -6,6 +6,9 @@ public interface ICaptureScheduler
     /// <summary>Gets the current recording state.</summary>
     RecordingState State { get; }
 
+    /// <summary>Gets when the user last started recording in this run of the application, or null when recording was never started.</summary>
+    DateTimeOffset? RecordingStartedAt { get; }
+
     /// <summary>Occurs when <see cref="State"/> changes.</summary>
     event EventHandler<RecordingState>? StateChanged;
 

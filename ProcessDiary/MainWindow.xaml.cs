@@ -1,28 +1,57 @@
+using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
+using ProcessDiary.Domain;
+using ProcessDiary.Services;
+using ProcessDiary.ViewModels;
 
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+namespace ProcessDiary;
 
-namespace ProcessDiary {
-    /// <summary>
-    /// An empty window that can be used on its own or navigated to within a Frame.
-    /// </summary>
-    public sealed partial class MainWindow : Window {
-        public MainWindow() {
-            InitializeComponent();
+/// <summary>The main window with the recording status and the page navigation.</summary>
+public sealed partial class MainWindow : Window
+{
+    /// <summary>Initializes the window.</summary>
+    /// <param name="viewModel">The view model of the shell.</param>
+    /// <param name="navigation">Shows the pages.</param>
+    /// <param name="shell">Receives this window for services that need its handle.</param>
+    public MainWindow(MainViewModel viewModel, INavigationService navigation, IShellWindowService shell)
+    {
+        ViewModel = viewModel;
+        InitializeComponent();
+
+        shell.Attach(this);
+        navigation.Initialize(PageHost);
+        AppWindow.Resize(new Windows.Graphics.SizeInt32(1100, 760));
+        AppWindow.Closing += OnClosing;
+        Navigation.SelectedItem = Navigation.MenuItems[0];
+    }
+
+    /// <summary>Gets the view model of the shell.</summary>
+    public MainViewModel ViewModel { get; }
+
+    private void OnNavigationSelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
+    {
+        if (args.IsSettingsSelected)
+        {
+            ViewModel.Navigate(NavigationKeys.Settings);
         }
+        else if (args.SelectedItemContainer?.Tag is string key)
+        {
+            ViewModel.Navigate(key);
+        }
+    }
+
+    // While recording, closing the window keeps ProcessDiary running in the tray; the tray icon and the
+    // overlay keep the recording visible. Otherwise closing the window exits the application.
+    private async void OnClosing(AppWindow sender, AppWindowClosingEventArgs args)
+    {
+        args.Cancel = true;
+        if (ViewModel.State is RecordingState.Recording or RecordingState.Paused)
+        {
+            sender.Hide();
+            return;
+        }
+
+        await ViewModel.ExitCommand.ExecuteAsync(null);
     }
 }
