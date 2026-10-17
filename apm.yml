@@ -1,0 +1,33 @@
+name: process-diary
+version: 1.0.0
+description: Agent context for the ProcessDiary
+
+# Everything APM deploys (.github/instructions/, .agents/skills/) is gitignored and recreated by
+# `apm install`. Agents are not deployed at all; see the Agents section below.
+targets:
+  - copilot
+
+dependencies:
+  apm:
+    # --- Agents ------------------------------------------------------------
+    # Agents are fetched into the gitignored apm_modules/ only. `targets: [agent-skills]` (a
+    # skills-only target) keeps APM from deploying them into .github/agents/. The tracked files
+    # in .github/agents/ are thin wrappers that point at the fetched originals and hold the
+    # local overrides (model, tools, extra rules).
+
+    # Turns research into a structured, verifiable implementation plan artifact.
+    - git: github/awesome-copilot
+      path: agents/implementation-plan.agent.md
+      ref: main
+      targets: [agent-skills]
+    # Spec-driven implementation against the DI / Router / Controller pattern.
+    - git: github/awesome-copilot
+      path: agents/software-engineer-agent-v1.agent.md
+      ref: main
+      targets: [agent-skills]
+
+  mcp: []
+
+includes: auto
+
+scripts: {}

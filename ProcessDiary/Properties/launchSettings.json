@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "ProcessDiary (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "ProcessDiary (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
