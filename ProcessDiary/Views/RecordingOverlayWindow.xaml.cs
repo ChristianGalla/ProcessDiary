@@ -2,7 +2,6 @@ using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using ProcessDiary.Domain.Abstractions;
 using ProcessDiary.ViewModels;
-using Windows.Graphics;
 using WinRT.Interop;
 
 namespace ProcessDiary.Views;
@@ -13,16 +12,19 @@ namespace ProcessDiary.Views;
 /// </summary>
 public sealed partial class RecordingOverlayWindow : Window
 {
-    private const int WidthPixels = 260;
-    private const int HeightPixels = 40;
-    private const int MarginPixels = 16;
+    private const int DiameterDips = 16;
+    private const int MarginDips = 16;
+
+    private readonly IIndicatorWindowStyler _styler;
 
     /// <summary>Initializes the overlay.</summary>
     /// <param name="viewModel">Provides the recording state.</param>
     /// <param name="protection">Excludes the overlay from screen capture.</param>
-    public RecordingOverlayWindow(MainViewModel viewModel, IWindowCaptureProtection protection)
+    /// <param name="styler">Shapes and places the overlay as a dot in the screen corner.</param>
+    public RecordingOverlayWindow(MainViewModel viewModel, IWindowCaptureProtection protection, IIndicatorWindowStyler styler)
     {
         ViewModel = viewModel;
+        _styler = styler;
         InitializeComponent();
 
         var presenter = OverlappedPresenter.Create();
@@ -34,19 +36,20 @@ public sealed partial class RecordingOverlayWindow : Window
         AppWindow.SetPresenter(presenter);
         AppWindow.IsShownInSwitchers = false;
 
-        var workArea = DisplayArea.Primary.WorkArea;
-        AppWindow.MoveAndResize(new RectInt32(
-            workArea.X + workArea.Width - WidthPixels - MarginPixels,
-            workArea.Y + MarginPixels,
-            WidthPixels,
-            HeightPixels));
-
         protection.ExcludeFromCapture(WindowNative.GetWindowHandle(this));
     }
 
     /// <summary>Gets the view model that provides the recording state.</summary>
     public MainViewModel ViewModel { get; }
 
-    /// <summary>Shows the overlay without taking the focus from the user's application.</summary>
-    public void ShowWithoutActivation() => AppWindow.Show(false);
+    /// <summary>Shows the overlay as a dot in the top-right corner of the primary monitor.</summary>
+    public void Show()
+    {
+        var handle = WindowNative.GetWindowHandle(this);
+
+        // The shape is applied before and after activation, because showing the window can reset its size and frame.
+        _styler.ApplyDotStyle(handle, DiameterDips, MarginDips);
+        Activate();
+        _styler.ApplyDotStyle(handle, DiameterDips, MarginDips);
+    }
 }

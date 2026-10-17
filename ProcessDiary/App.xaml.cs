@@ -34,13 +34,14 @@ public partial class App : Microsoft.UI.Xaml.Application
         await host.StartAsync();
 
         _window = host.Services.GetRequiredService<MainWindow>();
-        _window.Activate();
 
         host.Services.GetRequiredService<TrayIconService>().Initialize();
 
         // Recording is never hidden: the overlay shows the state from the first moment.
+        // WinUI renders the overlay content only after its first activation, so the main window takes the focus back afterwards.
         _overlay = host.Services.GetRequiredService<RecordingOverlayWindow>();
-        _overlay.ShowWithoutActivation();
+        _overlay.Show();
+        _window.Activate();
 
         host.Services.GetRequiredService<ILogger<App>>().LogInformation("ProcessDiary started");
     }

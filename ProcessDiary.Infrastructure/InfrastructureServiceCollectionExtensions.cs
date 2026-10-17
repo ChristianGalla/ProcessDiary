@@ -31,6 +31,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<PersistentSettingsStore>();
         services.AddSingleton<IDiarySettingsStore>(sp => sp.GetRequiredService<PersistentSettingsStore>());
         services.AddSingleton<IWindowCaptureProtection, WindowCaptureProtection>();
+        services.AddSingleton<IIndicatorWindowStyler, IndicatorWindowStyler>();
 
         services.AddSingleton<IProcessSessionRepository, ProcessSessionRepository>();
         services.AddSingleton<IScreenshotRepository, ScreenshotRepository>();

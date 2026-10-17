@@ -6,20 +6,5 @@
     xmlns:presentation="using:ProcessDiary.Presentation"
     Title="ProcessDiary status">
 
-    <Border
-        Background="#E6202020"
-        CornerRadius="8"
-        Padding="12,0">
-        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-            <Ellipse
-                Width="12"
-                Height="12"
-                Fill="{x:Bind presentation:StatusPresentation.GetBrush(ViewModel.State), Mode=OneWay}" />
-            <TextBlock
-                Foreground="White"
-                Text="{x:Bind ViewModel.StatusText, Mode=OneWay}"
-                VerticalAlignment="Center"
-                TextTrimming="CharacterEllipsis" />
-        </StackPanel>
-    </Border>
+    <Grid Background="{x:Bind presentation:StatusPresentation.GetBrush(ViewModel.State), Mode=OneWay}" />
 </Window>

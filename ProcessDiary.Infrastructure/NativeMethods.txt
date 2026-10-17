@@ -4,3 +4,14 @@ GetWindowTextLength
 GetWindowThreadProcessId
 MonitorFromWindow
 SetWindowDisplayAffinity
+GetMonitorInfo
+GetWindowLong
+MonitorFromPoint
+SetWindowLong
+SetWindowPos
+WINDOW_STYLE
+DwmSetWindowAttribute
+DWM_WINDOW_CORNER_PREFERENCE
+GetDpiForWindow
+SetWindowSubclass
+DefSubclassProc
