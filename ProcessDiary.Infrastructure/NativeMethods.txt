@@ -1,0 +1,5 @@
+GetForegroundWindow
+GetWindowText
+GetWindowTextLength
+GetWindowThreadProcessId
+MonitorFromWindow
