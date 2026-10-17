@@ -5,9 +5,7 @@
     <Platform Name="x86" />
   </Configurations>
   <Folder Name="/.github/" />
-  <Folder Name="/plan/">
-    <File Path="plan/feature-processdiary-core-1.md" />
-  </Folder>
+  <Folder Name="/plan/" />
   <Folder Name="/Solution Items/">
     <File Path=".gitattributes" />
     <File Path=".gitignore" />
@@ -15,6 +13,9 @@
     <File Path="apm.yml" />
     <File Path="LICENSE.txt" />
   </Folder>
+  <Project Path="ProcessDiary.Application/ProcessDiary.Application.csproj" />
+  <Project Path="ProcessDiary.Domain/ProcessDiary.Domain.csproj" />
+  <Project Path="ProcessDiary.Tests/ProcessDiary.Tests.csproj" />
   <Project Path="ProcessDiary/ProcessDiary.csproj">
     <Platform Solution="*|ARM64" Project="ARM64" />
     <Platform Solution="*|x64" Project="x64" />

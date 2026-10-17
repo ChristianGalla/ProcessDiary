@@ -16,4 +16,8 @@ This agent is a thin wrapper around an agent installed by APM (see `apm.yml`).
 
 ## Local overrides
 
-None besides the `model` and `tools` in the frontmatter.
+- When implementing a plan file, mark each task as completed directly in the plan's task table (Completed column and Date) as soon as it is finished, not at the end.
+- Never reference plan files or plan identifiers (e.g. REQ-002, TASK-005) in code comments, because plan files are temporary and are not committed to git. 
+- Always document every public or internal type and member (classes, records, interfaces, enums, methods, properties) with XML documentation comments when adding or updating code.
+- Prefer the dedicated file and project tools (get_file, create_file, replace_string_in_file, remove_file, run_build, run_tests) over PowerShell. Use the terminal only when no tool can do the job.
+- Put each class, record, interface and enum in its own file, named after the type.

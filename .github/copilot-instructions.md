@@ -1,7 +1,6 @@
 # ProcessDiary - GitHub Copilot Instructions
 
-ProcessDiary is a Windows 11 desktop app that builds a visual diary of computer activity (screenshots plus foreground application sessions).
-It is a transparent journaling tool, not a surveillance tool.
+ProcessDiary is a Windows 11 desktop app that builds a visual diary of computer activity (screenshots plus foreground application sessions). It is a transparent journaling tool, not a surveillance tool.
 
 ## Core Principles
 
@@ -12,9 +11,9 @@ It is a transparent journaling tool, not a surveillance tool.
 
 ## Privacy Rules
 
-Never implement: keystroke logging, password capture, clipboard surveillance, hidden recording modes, undocumented telemetry.
-Always: store data locally, show recording state, allow pausing and deleting data.
-If a feature could be privacy-invasive, favor user control and transparency.
+Never implement: keystroke logging, password capture, clipboard surveillance, hidden recording modes, undocumented telemetry.  
+Always: store data locally, show recording state, allow pausing and deleting data.  
+If a feature could be privacy-invasive, favor user control and transparency.  
 Do not implement cloud features unless explicitly requested.
 
 ## Technology
@@ -37,7 +36,7 @@ Keep Win32 code isolated. Platform-specific services sit behind interfaces. View
 
 ## Coding Guidelines
 
-Prefer: async/await, dependency injection, immutable DTOs, cancellation tokens, nullable reference types.
+Prefer: async/await, dependency injection, immutable DTOs, cancellation tokens, nullable reference types.  
 Avoid: static service classes, service locators, blocking calls, async void (except UI events).
 
 ## MVVM
@@ -47,13 +46,13 @@ Avoid: static service classes, service locators, blocking calls, async void (exc
 
 ## Logging
 
-Use Microsoft.Extensions.Logging with NLog.
+Use Microsoft.Extensions.Logging with NLog.  
 Do not log screenshot contents or sensitive user data.
 
 ## User Experience
 
-Professional, lightweight, transparent, trustworthy. Avoid technical jargon.
-Use: Activity, Timeline, Session, Screenshot, Application, Diary.
+Professional, lightweight, transparent, trustworthy. Avoid technical jargon.  
+Use: Activity, Timeline, Session, Screenshot, Application, Diary.  
 Avoid: Tracking target, Monitoring victim, Surveillance, Spy mode, gamer-only terminology.
 
 ## Testing
@@ -68,3 +67,8 @@ Avoid: Tracking target, Monitoring victim, Surveillance, Spy mode, gamer-only te
 - Favor clarity over cleverness and composition over inheritance.
 - Keep classes small and focused.
 - Maintain strict separation between UI and infrastructure.
+- Each class, record, interface, and enum must have its own file, named after the type.
+
+## Task Management
+
+When implementing a plan file, always mark completed tasks directly as completed in the plan's task table (Completed column and Date) as each task is finished.
