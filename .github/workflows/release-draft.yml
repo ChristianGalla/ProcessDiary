@@ -17,7 +17,11 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        platform: [x64, ARM64]
+        include:
+          - platform: x64
+            rid: x64
+          - platform: ARM64
+            rid: arm64
     steps:
       - uses: actions/checkout@v4
 
@@ -28,15 +32,15 @@ jobs:
       - uses: microsoft/setup-msbuild@v2
 
       - name: Restore
-        run: msbuild ProcessDiary/ProcessDiary.csproj /t:Restore /p:Configuration=Release /p:Platform=${{ matrix.platform }} /p:RuntimeIdentifier=win-${{ matrix.platform }}
+        /p:Platform=${{ matrix.platform }} /p:RuntimeIdentifier=win-${{ matrix.rid }}
 
-      - name: Publish unpackaged app
+              - name: Publish
         run: >
           msbuild ProcessDiary/ProcessDiary.csproj
           /t:Publish
           /p:Configuration=Release
           /p:Platform=${{ matrix.platform }}
-          /p:RuntimeIdentifier=win-${{ matrix.platform }}
+          /p:RuntimeIdentifier=win-${{ matrix.rid }}
           /p:WindowsPackageType=None
           /p:EnableMsixTooling=false
           /p:PublishProfile=
