@@ -1,0 +1,79 @@
+name: Create Release Draft
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version in the form Major.Minor.Patch (e.g. 1.2.0)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        platform: [x64, ARM64]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - uses: microsoft/setup-msbuild@v2
+
+      - name: Restore
+        run: msbuild ProcessDiary/ProcessDiary.csproj /t:Restore /p:Configuration=Release /p:Platform=${{ matrix.platform }} /p:RuntimeIdentifier=win-${{ matrix.platform }}
+
+      - name: Publish unpackaged app
+        run: >
+          msbuild ProcessDiary/ProcessDiary.csproj
+          /t:Publish
+          /p:Configuration=Release
+          /p:Platform=${{ matrix.platform }}
+          /p:RuntimeIdentifier=win-${{ matrix.platform }}
+          /p:WindowsPackageType=None
+          /p:EnableMsixTooling=false
+          /p:PublishProfile=
+          /p:PublishDir="${{ github.workspace }}\artifacts\publish\"
+
+      - name: Build MSI
+        shell: pwsh
+        run: |
+          dotnet build ProcessDiary.Installer/ProcessDiary.Installer.wixproj -c Release -p:Platform=${{ matrix.platform }} -p:Version=${{ inputs.version }}.0 -p:PublishDir="${{ github.workspace }}\artifacts\publish\"
+          if ($LASTEXITCODE -ne 0) { throw 'MSI build failed.' }
+          New-Item -ItemType Directory -Force -Path out | Out-Null
+          $msi = Get-ChildItem ProcessDiary.Installer/bin -Recurse -Filter *.msi | Select-Object -First 1
+          if (-not $msi) { throw 'No MSI was produced.' }
+          Copy-Item $msi.FullName "out/ProcessDiary-${{ inputs.version }}-${{ matrix.platform }}.msi"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: msi-${{ matrix.platform }}
+          path: out/*.msi
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: msi-*
+          path: out
+          merge-multiple: true
+
+      - name: Create release draft
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >
+          out/*.msi
+          --repo
+          --draft
+          --generate-notes
+          --title "ProcessDiary ${{ inputs.version }}"
+          --target "${{ github.sha }}"
