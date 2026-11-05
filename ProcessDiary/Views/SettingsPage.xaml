@@ -50,7 +50,6 @@
             </StackPanel>
 
             <StackPanel Orientation="Horizontal" Spacing="12">
-                <Button Content="Save" Command="{x:Bind ViewModel.SaveCommand}" Style="{StaticResource AccentButtonStyle}" />
                 <TextBlock Text="{x:Bind ViewModel.Message, Mode=OneWay}" VerticalAlignment="Center" />
             </StackPanel>
 

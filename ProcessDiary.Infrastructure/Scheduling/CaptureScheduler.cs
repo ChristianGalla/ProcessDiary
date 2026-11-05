@@ -228,6 +228,7 @@ internal sealed class CaptureScheduler : BackgroundService, ICaptureScheduler
         {
             await _sessions.AddAsync(started, cancellationToken);
             _currentSession = started;
+            _lastCaptureAt = now;
             _logger.LogInformation("Session started for {ProcessName}", started.ProcessName);
 
             if (_settings.Current.CaptureOnActivityChange)

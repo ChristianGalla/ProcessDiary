@@ -21,6 +21,8 @@ public sealed partial class SettingsViewModel : ObservableObject
     private readonly IFolderPickerService _folderPicker;
     private readonly IDialogService _dialogs;
     private readonly ILogger<SettingsViewModel> _logger;
+    private readonly SemaphoreSlim _saveGate = new(1, 1);
+    private bool _loading;
 
     [ObservableProperty]
     public partial string ScreenshotFolder { get; set; } = string.Empty;
@@ -67,17 +69,45 @@ public sealed partial class SettingsViewModel : ObservableObject
     /// <summary>Gets the selectable capture modes.</summary>
     public IReadOnlyList<CaptureModeOption> Modes => AllModes;
 
-    /// <summary>Discards unsaved edits and shows the stored settings.</summary>
+    /// <summary>Shows the stored settings.</summary>
     public void Reload()
     {
         var current = _store.Current;
-        ScreenshotFolder = current.ScreenshotFolder;
-        IntervalSeconds = current.CaptureInterval.TotalSeconds;
-        SelectedMode = AllModes.First(m => m.Mode == current.CaptureMode);
-        CaptureOnActivityChange = current.CaptureOnActivityChange;
-        RetentionEnabled = current.RetentionDays is not null;
-        RetentionDays = current.RetentionDays ?? 30;
-        Message = null;
+        _loading = true;
+        try
+        {
+            ScreenshotFolder = current.ScreenshotFolder;
+            IntervalSeconds = current.CaptureInterval.TotalSeconds;
+            SelectedMode = AllModes.First(m => m.Mode == current.CaptureMode);
+            CaptureOnActivityChange = current.CaptureOnActivityChange;
+            RetentionEnabled = current.RetentionDays is not null;
+            RetentionDays = current.RetentionDays ?? 30;
+            Message = null;
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    partial void OnScreenshotFolderChanged(string value) => QueueSave();
+
+    partial void OnIntervalSecondsChanged(double value) => QueueSave();
+
+    partial void OnSelectedModeChanged(CaptureModeOption value) => QueueSave();
+
+    partial void OnCaptureOnActivityChangeChanged(bool value) => QueueSave();
+
+    partial void OnRetentionEnabledChanged(bool value) => QueueSave();
+
+    partial void OnRetentionDaysChanged(double value) => QueueSave();
+
+    private void QueueSave()
+    {
+        if (!_loading)
+        {
+            _ = SaveAsync();
+        }
     }
 
     [RelayCommand]
@@ -89,8 +119,20 @@ public sealed partial class SettingsViewModel : ObservableObject
         }
     }
 
-    [RelayCommand]
     private async Task SaveAsync()
+    {
+        await _saveGate.WaitAsync();
+        try
+        {
+            await SaveCoreAsync();
+        }
+        finally
+        {
+            _saveGate.Release();
+        }
+    }
+
+    private async Task SaveCoreAsync()
     {
         if (!Path.IsPathRooted(ScreenshotFolder))
         {
@@ -110,6 +152,7 @@ public sealed partial class SettingsViewModel : ObservableObject
             return;
         }
 
+        var previousRetention = _store.Current.RetentionDays;
         var settings = _store.Current with
         {
             ScreenshotFolder = ScreenshotFolder,
@@ -122,7 +165,11 @@ public sealed partial class SettingsViewModel : ObservableObject
         try
         {
             await _store.SaveAsync(settings, CancellationToken.None);
-            await _data.ApplyRetentionAsync(CancellationToken.None);
+            if (settings.RetentionDays != previousRetention)
+            {
+                await _data.ApplyRetentionAsync(CancellationToken.None);
+            }
+
             Message = "Settings saved.";
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
