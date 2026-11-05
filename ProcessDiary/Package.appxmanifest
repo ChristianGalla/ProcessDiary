@@ -17,7 +17,7 @@
 
   <Properties>
     <DisplayName>ProcessDiary</DisplayName>
-    <PublisherDisplayName>Chris</PublisherDisplayName>
+    <PublisherDisplayName>Christian Galla</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 

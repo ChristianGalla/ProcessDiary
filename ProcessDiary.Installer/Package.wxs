@@ -1,6 +1,6 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
   <Package Name="ProcessDiary"
-		   Manufacturer="Chris"
+		   Manufacturer="Christian Galla"
 		   Version="$(Version)"
 		   UpgradeCode="6d0418ff-2e2e-4547-998f-130f0e5f429c"
 		   Scope="perMachine">
