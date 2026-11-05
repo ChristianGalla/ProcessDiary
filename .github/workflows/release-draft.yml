@@ -25,7 +25,7 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
-      - uses: microsoft/setup-msbuild@v2
+      - uses: microsoft/setup-msbuild@v3
 
       - name: Restore
         run: msbuild ProcessDiary/ProcessDiary.csproj /t:Restore /p:Configuration=Release /p:Platform=${{ matrix.platform }} /p:RuntimeIdentifier=win-${{ matrix.platform }}
