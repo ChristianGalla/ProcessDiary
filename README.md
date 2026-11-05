@@ -20,7 +20,7 @@ It is a transparent journaling tool, not a surveillance tool.
 
 ## Technology
 
-- Windows 11, WinUI 3, Windows App SDK, MSIX packaging
+MSI installer (WiX)
 - .NET 10
 - SQLite for local storage
 - CommunityToolkit.Mvvm, Microsoft.Extensions.Hosting / DependencyInjection / Logging, NLog
@@ -33,6 +33,7 @@ It is a transparent journaling tool, not a surveillance tool.
 | `ProcessDiary.Application` | Application | Use cases, services, commands, DTOs |
 | `ProcessDiary.Domain` | Domain | Entities, business rules, interfaces |
 | `ProcessDiary.Infrastructure` | Infrastructure | SQLite, Windows APIs, screenshot capture, process detection |
+| `ProcessDiary.Installer` | Installer | WiX project that builds the MSI |
 | `ProcessDiary.Tests` | Tests | Unit and integration tests |
 
 The Domain layer has no dependency on WinUI, and Win32 code is isolated behind interfaces in Infrastructure.
@@ -57,6 +58,17 @@ The Domain layer has no dependency on WinUI, and Win32 code is isolated behind i
 ```powershell
 dotnet test
 ```
+
+### Build the Installer (MSI)
+
+The installer packages the published app, so publish it first. Building `ProcessDiary.Installer` without published files only produces warnings (WIX8601, ICE71) and an empty MSI. Run from the repository root:
+
+```powershell
+msbuild ProcessDiary/ProcessDiary.csproj /t:Restore,Publish /p:Configuration=Release /p:Platform=x64 /p:RuntimeIdentifier=win-x64 /p:WindowsPackageType=None /p:EnableMsixTooling=false /p:PublishProfile= /p:PublishDir="$PWD\artifacts\publish\"
+dotnet build ProcessDiary.Installer/ProcessDiary.Installer.wixproj -c Release -p:Platform=x64
+```
+
+The MSI is written to `ProcessDiary.Installer\bin\x64\Release`. Use `ARM64` / `win-arm64` for ARM64. Release builds are created by the "Create Release Draft" GitHub workflow.
 
 ## Privacy
 

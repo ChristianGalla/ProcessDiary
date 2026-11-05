@@ -12,10 +12,12 @@
     <File Path="apm.lock.yaml" />
     <File Path="apm.yml" />
     <File Path="LICENSE.txt" />
+    <File Path="README.md" />
   </Folder>
   <Project Path="ProcessDiary.Application/ProcessDiary.Application.csproj" />
   <Project Path="ProcessDiary.Domain/ProcessDiary.Domain.csproj" />
   <Project Path="ProcessDiary.Infrastructure/ProcessDiary.Infrastructure.csproj" />
+  <Project Path="ProcessDiary.Installer/ProcessDiary.Installer.wixproj" />
   <Project Path="ProcessDiary.Tests/ProcessDiary.Tests.csproj" />
   <Project Path="ProcessDiary/ProcessDiary.csproj">
     <Platform Solution="*|ARM64" Project="ARM64" />

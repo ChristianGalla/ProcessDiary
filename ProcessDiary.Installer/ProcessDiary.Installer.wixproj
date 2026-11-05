@@ -1,0 +1,14 @@
+<Project Sdk="WixToolset.Sdk/5.0.2">
+  <PropertyGroup>
+	<OutputName>ProcessDiary</OutputName>
+	<OutputType>Package</OutputType>
+	<Platforms>x64;ARM64</Platforms>
+	<Platform Condition="'$(Platform)' == ''">x64</Platform>
+	<InstallerPlatform>$(Platform)</InstallerPlatform>
+	<Version Condition="'$(Version)' == ''">1.0.0.0</Version>
+	<SuppressIces>ICE03;ICE60</SuppressIces>
+	<PublishDir Condition="'$(PublishDir)' == ''">$(MSBuildThisFileDirectory)..\artifacts\publish\</PublishDir>
+	<SourceDir>$([System.IO.Path]::GetFullPath('$(PublishDir)').TrimEnd('\'))</SourceDir>
+	<DefineConstants>$(DefineConstants);Version=$(Version);SourceDir=$(SourceDir)</DefineConstants>
+  </PropertyGroup>
+</Project>

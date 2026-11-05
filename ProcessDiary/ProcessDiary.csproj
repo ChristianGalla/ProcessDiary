@@ -5,12 +5,14 @@
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <RootNamespace>ProcessDiary</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\ProcessDiary.ico</ApplicationIcon>
     <Platforms>x86;x64;ARM64</Platforms>
     <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
     <PublishProfile>win-$(Platform).pubxml</PublishProfile>
     <UseWinUI>true</UseWinUI>
     <WinUISDKReferences>false</WinUISDKReferences>
     <EnableMsixTooling>true</EnableMsixTooling>
+    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
@@ -32,9 +34,27 @@
     <Content Include="Assets\Tray\*.ico" />
   </ItemGroup>
 
+  <Target Name="CopyIconsToOutput" AfterTargets="Build">
+    <ItemGroup>
+      <IconFile Include="$(MSBuildProjectDirectory)\Assets\**\*.ico" />
+    </ItemGroup>
+    <Copy SourceFiles="@(IconFile)" DestinationFiles="@(IconFile->'$(OutDir)Assets\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+  </Target>
+
   <ItemGroup>
     <Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>
+
+  <!-- Unpackaged publish omits the compiled XAML (.xbf), the resource index (.pri) and the icons loaded from disk at runtime. -->
+  <Target Name="IncludeXamlOutputInPublish" BeforeTargets="ComputeResolvedFilesToPublishList" Condition="'$(WindowsPackageType)' == 'None'">
+    <ItemGroup>
+      <XamlOutputFile Include="$(OutDir)**\*.xbf" />
+      <ResolvedFileToPublish Include="@(XamlOutputFile)" RelativePath="%(RecursiveDir)%(Filename)%(Extension)" CopyToPublishDirectory="PreserveNewest" />
+      <ResolvedFileToPublish Include="$(OutDir)$(TargetName).pri" RelativePath="$(TargetName).pri" CopyToPublishDirectory="PreserveNewest" />
+      <IconOutputFile Include="$(MSBuildProjectDirectory)\Assets\**\*.ico" />
+      <ResolvedFileToPublish Include="@(IconOutputFile)" RelativePath="Assets\%(RecursiveDir)%(Filename)%(Extension)" CopyToPublishDirectory="PreserveNewest" />
+    </ItemGroup>
+  </Target>
 
   <!--
     Defining the "Msix" ProjectCapability here allows the Single-project MSIX Packaging
@@ -64,7 +84,6 @@
   <PropertyGroup>
     <PublishReadyToRun Condition="'$(Configuration)' == 'Debug'">False</PublishReadyToRun>
     <PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
-    <PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
-    <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
+    <PublishTrimmed>False</PublishTrimmed>
   </PropertyGroup>
 </Project>
