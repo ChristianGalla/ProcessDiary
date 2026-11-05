@@ -13,7 +13,7 @@ public sealed class TrayIconService : IDisposable
     private readonly IShellWindowService _shell;
     private TaskbarIcon? _icon;
     private MenuFlyoutItem? _primaryItem;
-    private readonly Dictionary<string, System.Drawing.Icon> _icons = new();
+    private string? _currentIconName;
 
     /// <summary>Initializes the service.</summary>
     /// <param name="viewModel">Provides the state and commands.</param>
@@ -57,32 +57,15 @@ public sealed class TrayIconService : IDisposable
     {
         _icon?.Dispose();
         _icon = null;
-        foreach (var icon in _icons.Values)
-        {
-            icon.Dispose();
-        }
-
-        _icons.Clear();
     }
 
-    private System.Drawing.Icon GetIcon(RecordingState state)
+    private static string GetIconName(RecordingState state) => state switch
     {
-        var name = state switch
-        {
-            RecordingState.Recording => "Recording",
-            RecordingState.Paused => "Paused",
-            RecordingState.Error => "Error",
-            _ => "Disabled"
-        };
-
-        if (!_icons.TryGetValue(name, out var icon))
-        {
-            icon = new System.Drawing.Icon(Path.Combine(AppContext.BaseDirectory, "Assets", "Tray", $"ProcessDiary-{name}.ico"));
-            _icons[name] = icon;
-        }
-
-        return icon;
-    }
+        RecordingState.Recording => "Recording",
+        RecordingState.Paused => "Paused",
+        RecordingState.Error => "Error",
+        _ => "Disabled"
+    };
 
     private void Refresh()
     {
@@ -92,7 +75,14 @@ public sealed class TrayIconService : IDisposable
         }
 
         _icon.ToolTipText = $"ProcessDiary – {_viewModel.StatusText}";
-        _icon.Icon = GetIcon(_viewModel.State);
+        var name = GetIconName(_viewModel.State);
+        if (name != _currentIconName)
+        {
+            // TaskbarIcon takes ownership and disposes the previous icon, so a new instance is needed each time.
+            _icon.Icon = new System.Drawing.Icon(Path.Combine(AppContext.BaseDirectory, "Assets", "Tray", $"ProcessDiary-{name}.ico"));
+            _currentIconName = name;
+        }
+
         _primaryItem.Text = _viewModel.PrimaryActionText;
     }
 }
