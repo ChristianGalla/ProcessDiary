@@ -32,7 +32,7 @@ jobs:
       - uses: microsoft/setup-msbuild@v3
 
       - name: Restore
-        run: msbuild ProcessDiary/ProcessDiary.csproj /t:Restore /p:Configuration=Release /p:Platform=${{ matrix.platform }} /p:RuntimeIdentifier=win-${{ matrix.rid }}
+        run: msbuild ProcessDiary/ProcessDiary.csproj /t:Restore /p:Configuration=Release /p:Platform=${{ matrix.platform }} /p:RuntimeIdentifier=win-${{ matrix.rid }} /p:PublishProfile=
 
       - name: Publish unpackaged app
         run: >
