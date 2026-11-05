@@ -52,7 +52,7 @@ jobs:
           if (-not $msi) { throw 'No MSI was produced.' }
           Copy-Item $msi.FullName "out/ProcessDiary-${{ inputs.version }}-${{ matrix.platform }}.msi"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: msi-${{ matrix.platform }}
           path: out/*.msi
