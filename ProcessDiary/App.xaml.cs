@@ -59,6 +59,7 @@ public partial class App : Microsoft.UI.Xaml.Application
         services.AddSingleton<IShellWindowService, ShellWindowService>();
         services.AddSingleton<INavigationService, NavigationService>();
         services.AddSingleton<IDialogService, DialogService>();
+        services.AddSingleton<IFileLauncherService, FileLauncherService>();
         services.AddSingleton<IFolderPickerService, FolderPickerService>();
         services.AddSingleton<IApplicationExitService, ApplicationExitService>();
         services.AddSingleton<TrayIconService>();

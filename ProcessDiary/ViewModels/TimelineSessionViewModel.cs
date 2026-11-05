@@ -20,7 +20,7 @@ public sealed partial class TimelineSessionViewModel : ObservableObject
         var end = entry.Session.EndedAt is { } ended ? ended.ToString("HH:mm:ss") : "now";
         TimeText = $"{entry.Session.StartedAt:d MMM HH:mm:ss} – {end}";
         DurationText = DurationFormatter.Format(entry.Duration);
-        Screenshots = entry.Screenshots.Select(s => new TimelineScreenshotViewModel(s)).ToList();
+        Screenshots = entry.Screenshots.Select(s => new TimelineScreenshotViewModel(s, entry)).ToList();
     }
 
     /// <summary>Gets the identifier of the session.</summary>

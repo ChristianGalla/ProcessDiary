@@ -15,6 +15,7 @@ public sealed partial class TimelineViewModel : ObservableObject
     private readonly ITimelineService _timeline;
     private readonly IDataManagementService _data;
     private readonly IDialogService _dialogs;
+    private readonly IFileLauncherService _launcher;
     private readonly ILogger<TimelineViewModel> _logger;
 
     [ObservableProperty]
@@ -27,20 +28,36 @@ public sealed partial class TimelineViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(IsEmpty))]
     public partial bool HasLoaded { get; set; }
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasPreview))]
+    public partial TimelineScreenshotViewModel? PreviewScreenshot { get; set; }
+
+    /// <summary>Gets a value indicating whether a screenshot is shown in the side panel.</summary>
+    public bool HasPreview => PreviewScreenshot is not null;
+
+    partial void OnPreviewScreenshotChanged(TimelineScreenshotViewModel? oldValue, TimelineScreenshotViewModel? newValue)
+    {
+        oldValue?.IsPreviewed = false;
+        newValue?.IsPreviewed = true;
+    }
+
     /// <summary>Initializes the view model.</summary>
     /// <param name="timeline">Source of the timeline.</param>
     /// <param name="data">Deletes sessions and screenshots.</param>
     /// <param name="dialogs">Asks for confirmation before deleting.</param>
+    /// <param name="launcher">Opens screenshot files and their location.</param>
     /// <param name="logger">The logger.</param>
     public TimelineViewModel(
         ITimelineService timeline,
         IDataManagementService data,
         IDialogService dialogs,
+        IFileLauncherService launcher,
         ILogger<TimelineViewModel> logger)
     {
         _timeline = timeline;
         _data = data;
         _dialogs = dialogs;
+        _launcher = launcher;
         _logger = logger;
         Sessions.CollectionChanged += (_, _) => OnPropertyChanged(nameof(IsEmpty));
     }
@@ -69,6 +86,7 @@ public sealed partial class TimelineViewModel : ObservableObject
         {
             var timeline = await _timeline.GetTimelineAsync(filter, CancellationToken.None);
             Sessions.Clear();
+            PreviewScreenshot = null;
             foreach (var entry in timeline.Entries)
             {
                 Sessions.Add(new TimelineSessionViewModel(entry));
@@ -84,6 +102,60 @@ public sealed partial class TimelineViewModel : ObservableObject
         finally
         {
             IsLoading = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task DeletePreviewAsync()
+    {
+        if (PreviewScreenshot is not { } shot)
+        {
+            return;
+        }
+
+        var confirmed = await _dialogs.ConfirmAsync(
+            "Delete this screenshot?",
+            "The screenshot will be deleted permanently.",
+            "Delete");
+        if (!confirmed)
+        {
+            return;
+        }
+
+        string result;
+        try
+        {
+            await _data.DeleteScreenshotsAsync([shot.Screenshot], CancellationToken.None);
+            result = "The screenshot was deleted.";
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Screenshot could not be deleted");
+            result = "The screenshot could not be deleted.";
+        }
+
+        await LoadAsync();
+        Message = result;
+    }
+
+    [RelayCommand]
+    private void ClosePreview() => PreviewScreenshot = null;
+
+    [RelayCommand]
+    private void OpenPreviewImage()
+    {
+        if (PreviewScreenshot is { } shot && !_launcher.OpenFile(shot.Screenshot.FilePath))
+        {
+            Message = "The image could not be opened.";
+        }
+    }
+
+    [RelayCommand]
+    private void ShowPreviewInFolder()
+    {
+        if (PreviewScreenshot is { } shot && !_launcher.ShowInFolder(shot.Screenshot.FilePath))
+        {
+            Message = "The image location could not be opened.";
         }
     }
 

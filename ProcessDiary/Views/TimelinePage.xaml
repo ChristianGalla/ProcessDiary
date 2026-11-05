@@ -7,6 +7,13 @@
     xmlns:vm="using:ProcessDiary.ViewModels"
     Loaded="OnLoaded">
 
+    <Grid>
+    <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*" />
+        <ColumnDefinition Width="Auto" />
+        <ColumnDefinition Width="Auto" />
+    </Grid.ColumnDefinitions>
+
     <Grid Padding="24" RowSpacing="12">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -68,7 +75,9 @@
                             Grid.Row="1"
                             Margin="36,0,0,0"
                             ItemsSource="{x:Bind Screenshots}"
-                            SelectionMode="None">
+                            SelectionMode="None"
+                            IsItemClickEnabled="True"
+                            ItemClick="OnScreenshotClick">
                             <GridView.ItemTemplate>
                                 <DataTemplate x:DataType="vm:TimelineScreenshotViewModel">
                                     <Grid Width="180" RowSpacing="4">
@@ -80,6 +89,12 @@
                                             Source="{x:Bind ImageSource}"
                                             Stretch="UniformToFill"
                                             Visibility="{x:Bind FileExists}" />
+                                        <Border
+                                            BorderBrush="{ThemeResource AccentFillColorDefaultBrush}"
+                                            BorderThickness="3"
+                                            CornerRadius="4"
+                                            IsHitTestVisible="False"
+                                            Visibility="{x:Bind IsPreviewed, Mode=OneWay}" />
                                         <TextBlock
                                             Text="Image file not found"
                                             HorizontalAlignment="Center"
@@ -97,5 +112,78 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
+    </Grid>
+
+    <local:ResizeGrip
+        Grid.Column="1"
+        Width="8"
+        Background="Transparent"
+        Visibility="{x:Bind ViewModel.HasPreview, Mode=OneWay}"
+        PointerPressed="OnGripPointerPressed"
+        PointerMoved="OnGripPointerMoved"
+        PointerReleased="OnGripPointerReleased"
+        PointerCanceled="OnGripPointerReleased">
+        <Rectangle
+            Width="2"
+            HorizontalAlignment="Center"
+            Fill="{ThemeResource DividerStrokeColorDefaultBrush}" />
+    </local:ResizeGrip>
+
+    <Grid
+        x:Name="PreviewPanel"
+        Grid.Column="2"
+        Width="480"
+        Padding="16"
+        RowSpacing="12"
+        Background="{ThemeResource LayerFillColorDefaultBrush}"
+        Visibility="{x:Bind ViewModel.HasPreview, Mode=OneWay}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid ColumnSpacing="8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock
+                Text="{x:Bind ViewModel.PreviewScreenshot.CapturedText, Mode=OneWay}"
+                Style="{StaticResource SubtitleTextBlockStyle}"
+                VerticalAlignment="Center" />
+            <Button
+                Grid.Column="1"
+                Content="Close"
+                Command="{x:Bind ViewModel.ClosePreviewCommand}" />
+        </Grid>
+        <ScrollViewer Grid.Row="1">
+            <StackPanel Spacing="12">
+                <Image
+                    Source="{x:Bind ViewModel.PreviewScreenshot.ImageSource, Mode=OneWay}"
+                    Stretch="Uniform" />
+                <ItemsControl ItemsSource="{x:Bind ViewModel.PreviewScreenshot.Details, Mode=OneWay}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ScreenshotDetail">
+                            <StackPanel Margin="0,0,0,8">
+                                <TextBlock Text="{x:Bind Label}" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" />
+                                <TextBlock Text="{x:Bind Value}" IsTextSelectionEnabled="True" TextWrapping="Wrap" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </ScrollViewer>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8">
+            <Button
+                Content="Open in image viewer"
+                Command="{x:Bind ViewModel.OpenPreviewImageCommand}" />
+            <Button
+                Content="Open image location"
+                Command="{x:Bind ViewModel.ShowPreviewInFolderCommand}" />
+            <Button
+                Content="Delete"
+                Command="{x:Bind ViewModel.DeletePreviewCommand}" />
+        </StackPanel>
+    </Grid>
     </Grid>
 </Page>
