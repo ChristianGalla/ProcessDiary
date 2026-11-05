@@ -22,6 +22,7 @@ public sealed partial class MainWindow : Window
         shell.Attach(this);
         navigation.Initialize(PageHost);
         AppWindow.Resize(new Windows.Graphics.SizeInt32(1100, 760));
+        AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets", "ProcessDiary.ico"));
         AppWindow.Closing += OnClosing;
         Navigation.SelectedItem = Navigation.MenuItems[0];
     }

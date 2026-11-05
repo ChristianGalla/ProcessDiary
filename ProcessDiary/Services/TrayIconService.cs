@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.Input;
 using H.NotifyIcon;
 using Microsoft.UI.Xaml.Controls;
-using ProcessDiary.Presentation;
+using ProcessDiary.Domain;
 using ProcessDiary.ViewModels;
 
 namespace ProcessDiary.Services;
@@ -13,6 +13,7 @@ public sealed class TrayIconService : IDisposable
     private readonly IShellWindowService _shell;
     private TaskbarIcon? _icon;
     private MenuFlyoutItem? _primaryItem;
+    private readonly Dictionary<string, System.Drawing.Icon> _icons = new();
 
     /// <summary>Initializes the service.</summary>
     /// <param name="viewModel">Provides the state and commands.</param>
@@ -56,6 +57,31 @@ public sealed class TrayIconService : IDisposable
     {
         _icon?.Dispose();
         _icon = null;
+        foreach (var icon in _icons.Values)
+        {
+            icon.Dispose();
+        }
+
+        _icons.Clear();
+    }
+
+    private System.Drawing.Icon GetIcon(RecordingState state)
+    {
+        var name = state switch
+        {
+            RecordingState.Recording => "Recording",
+            RecordingState.Paused => "Paused",
+            RecordingState.Error => "Error",
+            _ => "Disabled"
+        };
+
+        if (!_icons.TryGetValue(name, out var icon))
+        {
+            icon = new System.Drawing.Icon(Path.Combine(AppContext.BaseDirectory, "Assets", "Tray", $"ProcessDiary-{name}.ico"));
+            _icons[name] = icon;
+        }
+
+        return icon;
     }
 
     private void Refresh()
@@ -66,12 +92,7 @@ public sealed class TrayIconService : IDisposable
         }
 
         _icon.ToolTipText = $"ProcessDiary – {_viewModel.StatusText}";
-        _icon.IconSource = new GeneratedIconSource
-        {
-            Text = "●",
-            Foreground = StatusPresentation.GetBrush(_viewModel.State),
-            FontSize = 48
-        };
+        _icon.Icon = GetIcon(_viewModel.State);
         _primaryItem.Text = _viewModel.PrimaryActionText;
     }
 }
