@@ -11,4 +11,7 @@ public static class NavigationKeys
 
     /// <summary>The settings page.</summary>
     public const string Settings = "settings";
+
+    /// <summary>The about page.</summary>
+    public const string About = "about";
 }

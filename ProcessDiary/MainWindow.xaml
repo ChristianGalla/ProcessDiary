@@ -64,6 +64,13 @@
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
             </NavigationView.MenuItems>
+            <NavigationView.FooterMenuItems>
+                <NavigationViewItem Content="About" Tag="about">
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Help" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+            </NavigationView.FooterMenuItems>
             <ContentControl
                 x:Name="PageHost"
                 HorizontalContentAlignment="Stretch"

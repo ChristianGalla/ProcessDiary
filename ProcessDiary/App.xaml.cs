@@ -74,6 +74,7 @@ public partial class App : Microsoft.UI.Xaml.Application
         services.AddTransient<TimelinePage>();
         services.AddTransient<StatisticsPage>();
         services.AddTransient<SettingsPage>();
+        services.AddTransient<AboutPage>();
 
         return builder.Build();
     }

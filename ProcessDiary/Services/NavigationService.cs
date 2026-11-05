@@ -30,6 +30,7 @@ public sealed class NavigationService : INavigationService
             NavigationKeys.Timeline => typeof(TimelinePage),
             NavigationKeys.Statistics => typeof(StatisticsPage),
             NavigationKeys.Settings => typeof(SettingsPage),
+            NavigationKeys.About => typeof(AboutPage),
             _ => null
         };
 

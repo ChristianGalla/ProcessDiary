@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="ProcessDiary.Views.AboutPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ScrollViewer>
+        <StackPanel Padding="24" Spacing="12" MaxWidth="720" HorizontalAlignment="Left">
+            <TextBlock Text="About ProcessDiary" Style="{StaticResource TitleTextBlockStyle}" />
+            <TextBlock x:Name="VersionTextBlock" Style="{StaticResource BodyStrongTextBlockStyle}" />
+            <TextBlock
+                Text="ProcessDiary builds a visual diary of your computer activity from screenshots and the applications you use. It is a transparent journaling tool, not a surveillance tool."
+                TextWrapping="Wrap" />
+            <TextBlock Text="Your privacy" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,12,0,0" />
+            <TextBlock TextWrapping="Wrap">
+                <Run Text="• Everything is stored locally on this computer." />
+                <LineBreak />
+                <Run Text="• The recording status is always visible while ProcessDiary is recording." />
+                <LineBreak />
+                <Run Text="• Nothing is sent over the network." />
+                <LineBreak />
+                <Run Text="• You can pause recording and delete your data at any time." />
+            </TextBlock>
+            <TextBlock Text="Details" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,12,0,0" />
+            <TextBlock x:Name="AuthorTextBlock" Text="Author: Christian Galla" />
+            <TextBlock x:Name="LicenseTextBlock" Text="License: MIT License" />
+            <TextBlock x:Name="PackagingTextBlock" />
+            <TextBlock x:Name="RuntimeTextBlock" />
+            <HyperlinkButton Content="Project on GitHub" NavigateUri="https://github.com/ChristianGalla/ProcessDiary" Padding="0" />
+        </StackPanel>
+    </ScrollViewer>
+</Page>
+
+
+
