@@ -23,13 +23,13 @@ jobs:
           - platform: ARM64
             rid: arm64
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
 
-      - uses: microsoft/setup-msbuild@v2
+      - uses: microsoft/setup-msbuild@v3
 
       - name: Restore
         /p:Platform=${{ matrix.platform }} /p:RuntimeIdentifier=win-${{ matrix.rid }}
@@ -56,7 +56,7 @@ jobs:
           if (-not $msi) { throw 'No MSI was produced.' }
           Copy-Item $msi.FullName "out/ProcessDiary-${{ inputs.version }}-${{ matrix.platform }}.msi"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: msi-${{ matrix.platform }}
           path: out/*.msi
@@ -65,7 +65,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           pattern: msi-*
           path: out
