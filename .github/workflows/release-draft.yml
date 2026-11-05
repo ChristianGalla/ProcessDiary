@@ -32,9 +32,9 @@ jobs:
       - uses: microsoft/setup-msbuild@v3
 
       - name: Restore
-        /p:Platform=${{ matrix.platform }} /p:RuntimeIdentifier=win-${{ matrix.rid }}
+        run: msbuild ProcessDiary/ProcessDiary.csproj /t:Restore /p:Configuration=Release /p:Platform=${{ matrix.platform }} /p:RuntimeIdentifier=win-${{ matrix.rid }}
 
-              - name: Publish
+      - name: Publish unpackaged app
         run: >
           msbuild ProcessDiary/ProcessDiary.csproj
           /t:Publish
@@ -75,9 +75,9 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: >
+          gh release create "v${{ inputs.version }}"
           out/*.msi
-          --repo
-          --draft
+          --repo "${{ github.repository }}"          --draft
           --generate-notes
           --title "ProcessDiary ${{ inputs.version }}"
           --target "${{ github.sha }}"
