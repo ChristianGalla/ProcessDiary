@@ -16,7 +16,9 @@
 
         <StackPanel Orientation="Horizontal" Spacing="12">
             <local:FilterBar Filter="{x:Bind ViewModel.Filter}" />
+            <!-- Hidden until categories can be assigned in the UI; restore Visibility once implemented. -->
             <ToggleSwitch
+                Visibility="Collapsed"
                 Header="Group by"
                 OnContent="Category"
                 OffContent="Application"
