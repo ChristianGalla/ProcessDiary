@@ -10,6 +10,7 @@ MonitorFromPoint
 SetWindowLong
 SetWindowPos
 WINDOW_STYLE
+WINDOW_EX_STYLE
 DwmSetWindowAttribute
 DWM_WINDOW_CORNER_PREFERENCE
 GetDpiForWindow

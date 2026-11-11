@@ -16,6 +16,7 @@ internal sealed class IndicatorWindowStyler : IIndicatorWindowStyler
     private const uint NoBorderColor = 0xFFFFFFFE;
     private const uint WmNcCalcSize = 0x0083;
     private const nuint SubclassId = 1;
+    private static readonly HWND TopMost = new(-1);
 
     private readonly SUBCLASSPROC _subclassProc;
     private nint _subclassedWindow;
@@ -47,6 +48,11 @@ internal sealed class IndicatorWindowStyler : IIndicatorWindowStyler
         var visible = PInvoke.GetWindowLong(window, WINDOW_LONG_PTR_INDEX.GWL_STYLE) & (int)WINDOW_STYLE.WS_VISIBLE;
         PInvoke.SetWindowLong(window, WINDOW_LONG_PTR_INDEX.GWL_STYLE, visible | unchecked((int)WINDOW_STYLE.WS_POPUP));
 
+        // A topmost tool window that never takes focus stays above full screen applications without disturbing them.
+        const WINDOW_EX_STYLE overlayStyles = WINDOW_EX_STYLE.WS_EX_TOPMOST | WINDOW_EX_STYLE.WS_EX_TOOLWINDOW | WINDOW_EX_STYLE.WS_EX_NOACTIVATE;
+        var exStyle = PInvoke.GetWindowLong(window, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE);
+        PInvoke.SetWindowLong(window, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE, exStyle | (int)overlayStyles);
+
         // WinUI keeps an invisible border around the client area. Removing it lets the XAML content cover the whole window.
         if (_subclassedWindow != windowHandle)
         {
@@ -55,8 +61,8 @@ internal sealed class IndicatorWindowStyler : IIndicatorWindowStyler
         }
 
         // Move onto the primary monitor first so that the DPI used for the size belongs to that monitor.
-        const SET_WINDOW_POS_FLAGS flags = SET_WINDOW_POS_FLAGS.SWP_NOZORDER | SET_WINDOW_POS_FLAGS.SWP_NOACTIVATE;
-        PInvoke.SetWindowPos(window, HWND.Null, info.rcWork.left, info.rcWork.top, 0, 0, flags | SET_WINDOW_POS_FLAGS.SWP_NOSIZE);
+        const SET_WINDOW_POS_FLAGS flags = SET_WINDOW_POS_FLAGS.SWP_NOACTIVATE;
+        PInvoke.SetWindowPos(window, TopMost, info.rcWork.left, info.rcWork.top, 0, 0, flags | SET_WINDOW_POS_FLAGS.SWP_NOSIZE);
 
         var scale = PInvoke.GetDpiForWindow(window) / BaseDpi;
         var diameter = (int)Math.Ceiling(diameterDips * scale);
@@ -64,7 +70,7 @@ internal sealed class IndicatorWindowStyler : IIndicatorWindowStyler
 
         var placed = PInvoke.SetWindowPos(
             window,
-            HWND.Null,
+            TopMost,
             info.rcWork.right - diameter - margin,
             info.rcWork.top + margin,
             diameter,
@@ -72,6 +78,17 @@ internal sealed class IndicatorWindowStyler : IIndicatorWindowStyler
             flags | SET_WINDOW_POS_FLAGS.SWP_FRAMECHANGED);
 
         return placed;
+    }
+
+    /// <inheritdoc />
+    public bool BringToTop(nint windowHandle)
+    {
+        // Full screen applications can claim the topmost band after the indicator, so the position is asserted again.
+        const SET_WINDOW_POS_FLAGS flags = SET_WINDOW_POS_FLAGS.SWP_NOMOVE
+            | SET_WINDOW_POS_FLAGS.SWP_NOSIZE
+            | SET_WINDOW_POS_FLAGS.SWP_NOACTIVATE
+            | SET_WINDOW_POS_FLAGS.SWP_SHOWWINDOW;
+        return PInvoke.SetWindowPos(new HWND(windowHandle), TopMost, 0, 0, 0, 0, flags);
     }
 
     private LRESULT OnWindowMessage(HWND window, uint message, WPARAM wParam, LPARAM lParam, nuint subclassId, nuint referenceData)

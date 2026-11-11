@@ -1,3 +1,4 @@
+using Microsoft.UI.Dispatching;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using ProcessDiary.Domain.Abstractions;
@@ -15,7 +16,10 @@ public sealed partial class RecordingOverlayWindow : Window
     private const int DiameterDips = 16;
     private const int MarginDips = 16;
 
+    private static readonly TimeSpan KeepOnTopInterval = TimeSpan.FromMilliseconds(500);
+
     private readonly IIndicatorWindowStyler _styler;
+    private DispatcherQueueTimer? _keepOnTopTimer;
 
     /// <summary>Initializes the overlay.</summary>
     /// <param name="viewModel">Provides the recording state.</param>
@@ -51,5 +55,14 @@ public sealed partial class RecordingOverlayWindow : Window
         _styler.ApplyDotStyle(handle, DiameterDips, MarginDips);
         Activate();
         _styler.ApplyDotStyle(handle, DiameterDips, MarginDips);
+
+        if (_keepOnTopTimer is null)
+        {
+            _keepOnTopTimer = DispatcherQueue.CreateTimer();
+            _keepOnTopTimer.Interval = KeepOnTopInterval;
+            _keepOnTopTimer.Tick += (_, _) => _styler.BringToTop(handle);
+        }
+
+        _keepOnTopTimer.Start();
     }
 }
