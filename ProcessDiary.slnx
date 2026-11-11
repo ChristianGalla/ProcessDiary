@@ -17,7 +17,9 @@
   <Project Path="ProcessDiary.Application/ProcessDiary.Application.csproj" />
   <Project Path="ProcessDiary.Domain/ProcessDiary.Domain.csproj" />
   <Project Path="ProcessDiary.Infrastructure/ProcessDiary.Infrastructure.csproj" />
-  <Project Path="ProcessDiary.Installer/ProcessDiary.Installer.wixproj" />
+  <Project Path="ProcessDiary.Installer/ProcessDiary.Installer.wixproj" Type="b7dd6f7e-def8-4e67-b5b7-07ef123db6f0">
+    <Platform Solution="*|x86" Project="x64" />
+  </Project>
   <Project Path="ProcessDiary.Tests/ProcessDiary.Tests.csproj" />
   <Project Path="ProcessDiary/ProcessDiary.csproj">
     <Platform Solution="*|ARM64" Project="ARM64" />

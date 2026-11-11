@@ -4,6 +4,12 @@ ProcessDiary is a Windows 11 desktop app that builds a visual diary of your comp
 
 It is a transparent journaling tool, not a surveillance tool.
 
+View your recoreded sessions and screenshots:
+![Timeline](/assets/images/Timeline.png)
+
+View your total duration per program:
+![Statistics](/assets/images/Statistics.png)
+
 ## Principles
 
 - **User-controlled** – you decide when recording starts, pauses, and what is deleted.
