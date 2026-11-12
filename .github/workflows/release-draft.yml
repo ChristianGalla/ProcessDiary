@@ -17,11 +17,17 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
+        platform: [x64, ARM64]
+        self_contained: [false, true]
         include:
           - platform: x64
             rid: x64
           - platform: ARM64
             rid: arm64
+          - self_contained: false
+            suffix: framework-dependent
+          - self_contained: true
+            suffix: self-contained
     steps:
       - uses: actions/checkout@v7
 
@@ -32,7 +38,7 @@ jobs:
       - uses: microsoft/setup-msbuild@v3
 
       - name: Restore
-        run: msbuild ProcessDiary/ProcessDiary.csproj /t:Restore /p:Configuration=Release /p:Platform=${{ matrix.platform }} /p:RuntimeIdentifier=win-${{ matrix.rid }} /p:PublishProfile=
+        run: msbuild ProcessDiary/ProcessDiary.csproj /t:Restore /p:Configuration=Release /p:Platform=${{ matrix.platform }} /p:RuntimeIdentifier=win-${{ matrix.rid }} /p:SelfContained=${{ matrix.self_contained }} /p:PublishProfile=
 
       - name: Publish unpackaged app
         run: >
@@ -41,6 +47,7 @@ jobs:
           /p:Configuration=Release
           /p:Platform=${{ matrix.platform }}
           /p:RuntimeIdentifier=win-${{ matrix.rid }}
+          /p:SelfContained=${{ matrix.self_contained }}
           /p:WindowsPackageType=None
           /p:EnableMsixTooling=false
           /p:PublishProfile=
@@ -54,11 +61,11 @@ jobs:
           New-Item -ItemType Directory -Force -Path out | Out-Null
           $msi = Get-ChildItem ProcessDiary.Installer/bin -Recurse -Filter *.msi | Select-Object -First 1
           if (-not $msi) { throw 'No MSI was produced.' }
-          Copy-Item $msi.FullName "out/ProcessDiary-${{ inputs.version }}-${{ matrix.platform }}.msi"
+          Copy-Item $msi.FullName "out/ProcessDiary-${{ inputs.version }}-${{ matrix.platform }}-${{ matrix.suffix }}.msi"
 
       - uses: actions/upload-artifact@v7
         with:
-          name: msi-${{ matrix.platform }}
+          name: msi-${{ matrix.platform }}-${{ matrix.suffix }}
           path: out/*.msi
 
   release:
@@ -77,7 +84,8 @@ jobs:
         run: >
           gh release create "v${{ inputs.version }}"
           out/*.msi
-          --repo "${{ github.repository }}"          --draft
+          --repo "${{ github.repository }}"
+          --draft
           --generate-notes
           --title "ProcessDiary ${{ inputs.version }}"
           --target "${{ github.sha }}"
