@@ -74,7 +74,7 @@ msbuild ProcessDiary/ProcessDiary.csproj /t:Restore,Publish /p:Configuration=Rel
 dotnet build ProcessDiary.Installer/ProcessDiary.Installer.wixproj -c Release -p:Platform=x64
 ```
 
-The MSI is written to `ProcessDiary.Installer\bin\x64\Release`. Use `ARM64` / `win-arm64` for ARM64. Release builds are created by the "Create Release Draft" GitHub workflow.
+The MSI is written to `ProcessDiary.Installer\bin\x64\Release`. Use `ARM64` / `win-arm64` for ARM64. Add `/p:SelfContained=true` (or `false`) to the publish command to bundle (or not bundle) the .NET runtime. Release builds attach framework-dependent (requires the .NET Desktop Runtime) and self-contained MSIs for x64 and ARM64; they are created by the "Create Release Draft" GitHub workflow.
 
 ## Privacy
 
