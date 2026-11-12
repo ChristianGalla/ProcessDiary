@@ -1,5 +1,11 @@
 # ProcessDiary
 
+[![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/ChristianGalla/ProcessDiary?label=Latest%20release%20version)](https://github.com/ChristianGalla/ProcessDiary/releases/latest)
+[![GitHub Release Date](https://img.shields.io/github/release-date/ChristianGalla/ProcessDiary?label=Latest%20release%20date)](https://github.com/ChristianGalla/ProcessDiary/releases/latest)
+[![GitHub](https://img.shields.io/github/license/ChristianGalla/ProcessDiary?label=License)](https://github.com/ChristianGalla/ProcessDiary/blob/master/LICENSE.txt)
+[![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/ChristianGalla/ProcessDiary/total?label=Downloads)](https://github.com/ChristianGalla/ProcessDiary/releases/latest)
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/ChristianGalla/ProcessDiary/tests.yml?label=Build%20%26%20Test)](https://github.com/ChristianGalla/ProcessDiary/actions/workflows/tests.yml)
+
 ProcessDiary is a Windows 11 desktop app that builds a visual diary of your computer activity: screenshots plus the applications you used, organized into a browsable timeline.
 
 It is a transparent journaling tool, not a surveillance tool.
