@@ -2,7 +2,31 @@ name: Tests
 
 on:
   push:
+    paths:
+      - "ProcessDiary/**"
+      - "ProcessDiary.Application/**"
+      - "ProcessDiary.Domain/**"
+      - "ProcessDiary.Infrastructure/**"
+      - "ProcessDiary.Tests/**"
+      - "ProcessDiary.slnx"
+      - "**/Directory.*.props"
+      - "**/Directory.*.targets"
+      - "global.json"
+      - "nuget.config"
+      - ".github/workflows/tests.yml"
   pull_request:
+    paths:
+      - "ProcessDiary/**"
+      - "ProcessDiary.Application/**"
+      - "ProcessDiary.Domain/**"
+      - "ProcessDiary.Infrastructure/**"
+      - "ProcessDiary.Tests/**"
+      - "ProcessDiary.slnx"
+      - "**/Directory.*.props"
+      - "**/Directory.*.targets"
+      - "global.json"
+      - "nuget.config"
+      - ".github/workflows/tests.yml"
 
 permissions:
   contents: read
