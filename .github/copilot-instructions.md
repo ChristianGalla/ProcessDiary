@@ -72,3 +72,7 @@ Avoid: Tracking target, Monitoring victim, Surveillance, Spy mode, gamer-only te
 ## Task Management
 
 When implementing a plan file, always mark completed tasks directly as completed in the plan's task table (Completed column and Date) as each task is finished.
+
+## Commit Messages
+
+Use Conventional Commits for all commit messages: `<type>(<optional scope>): <description>`, with types such as `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`, `build`, `ci`, `perf`, and `revert`. Use `!` or a `BREAKING CHANGE:` footer for breaking changes.
