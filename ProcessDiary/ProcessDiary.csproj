@@ -42,6 +42,25 @@
   </Target>
 
   <ItemGroup>
+    <None Include="..\LICENSE.txt" Link="LICENSE.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Licenses\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <ProjectLicenseDataFile Include="..\LICENSE.txt" />
+    <ThirdPartyLicenseDataFile Include="Licenses\**" />
+  </ItemGroup>
+  <Target Name="CopyLicenseDataAfterBuild" AfterTargets="PostBuildEvent">
+    <Copy SourceFiles="@(ProjectLicenseDataFile)" DestinationFiles="@(ProjectLicenseDataFile->'$(TargetDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(ThirdPartyLicenseDataFile)" DestinationFiles="@(ThirdPartyLicenseDataFile->'$(TargetDir)Licenses\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+  </Target>
+  <Target Name="CopyLicenseDataAfterPublish" AfterTargets="Publish">
+    <Copy SourceFiles="@(ProjectLicenseDataFile)" DestinationFiles="@(ProjectLicenseDataFile->'$(PublishDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(ThirdPartyLicenseDataFile)" DestinationFiles="@(ThirdPartyLicenseDataFile->'$(PublishDir)Licenses\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+  </Target>
+
+  <ItemGroup>
     <Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>
 
@@ -66,6 +85,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="CommunityToolkit.WinUI.UI.Controls.DataGrid" Version="7.1.2" />
     <PackageReference Include="H.NotifyIcon.WinUI" Version="2.4.1" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.13" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.28000.2705" />

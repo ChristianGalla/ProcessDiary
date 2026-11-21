@@ -65,6 +65,16 @@ The Domain layer has no dependency on WinUI, and Win32 code is isolated behind i
 3. Set `ProcessDiary` as the startup project.
 4. Build and run (F5).
 
+### Download Third-Party Licenses
+
+The About page expects generated dependency license notices in `ProcessDiary/Licenses`. These files are ignored by Git and generated automatically by the release workflow. To generate them locally, run from the repository root:
+
+```powershell
+.\Build\Export-ThirdPartyLicenses.ps1
+```
+
+The script installs the `nuget-license` .NET tool if needed, downloads dependency license files, installs Pandoc if conversion is required, and writes `ProcessDiary/Licenses/Licenses.json`. Run the script after restore and before publishing or building the installer so the package and About page contain the required notices.
+
 ### Run Tests
 
 ```powershell

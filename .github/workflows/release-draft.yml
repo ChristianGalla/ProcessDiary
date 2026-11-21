@@ -48,6 +48,10 @@ jobs:
       - name: Restore
         run: msbuild ProcessDiary/ProcessDiary.csproj /t:Restore /p:Configuration=Release /p:Platform=${{ matrix.platform }} /p:RuntimeIdentifier=win-${{ matrix.rid }} /p:SelfContained=${{ matrix.self_contained }} /p:PublishProfile=
 
+      - name: Download third-party licenses
+        shell: pwsh
+        run: ./Build/Export-ThirdPartyLicenses.ps1
+
       - name: Publish unpackaged app
         run: >
           msbuild ProcessDiary/ProcessDiary.csproj

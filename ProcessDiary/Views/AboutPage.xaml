@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation and Contributors. -->
+<!-- Licensed under the MIT License. -->
 <Page
     x:Class="ProcessDiary.Views.AboutPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
+    xmlns:models="using:ProcessDiary.Models">
 
-    <ScrollViewer>
-        <StackPanel Padding="24" Spacing="12" MaxWidth="720" HorizontalAlignment="Left">
+    <ScrollViewer HorizontalScrollMode="Disabled" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Padding="24" Spacing="12" HorizontalAlignment="Stretch">
             <TextBlock Text="About ProcessDiary" Style="{StaticResource TitleTextBlockStyle}" />
             <TextBlock x:Name="VersionTextBlock" Style="{StaticResource BodyStrongTextBlockStyle}" />
             <TextBlock
@@ -23,10 +27,84 @@
             </TextBlock>
             <TextBlock Text="Details" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,12,0,0" />
             <TextBlock x:Name="AuthorTextBlock" Text="Author: Christian Galla" />
-            <TextBlock x:Name="LicenseTextBlock" Text="License: MIT License" />
             <TextBlock x:Name="PackagingTextBlock" />
             <TextBlock x:Name="RuntimeTextBlock" />
             <HyperlinkButton Content="Project on GitHub" NavigateUri="https://github.com/ChristianGalla/ProcessDiary" Padding="0" />
+
+            <TextBlock Text="ProcessDiary license" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,12,0,0" />
+            <TextBlock
+                Text="{x:Bind License, Mode=OneTime}"
+                TextWrapping="Wrap"
+                IsTextSelectionEnabled="True"
+                HorizontalAlignment="Stretch"
+                FontFamily="Cascadia Mono, Consolas, monospace" />
+
+            <TextBlock Text="Third-party licenses" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,12,0,0" />
+            <controls:DataGrid
+                x:Name="ThirdPartyLicensesGrid"
+                AutoGenerateColumns="False"
+                CanUserSortColumns="True"
+                MinHeight="300"
+                HorizontalAlignment="Stretch"
+                IsReadOnly="True"
+                ItemsSource="{x:Bind ThirdPartyLicenses, Mode=OneTime}">
+                <controls:DataGrid.Columns>
+                    <controls:DataGridTemplateColumn Header="Package" Tag="PackageId" Width="3*" MinWidth="0">
+                        <controls:DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate x:DataType="models:ThirdPartyLicenseEntry">
+                                <TextBlock Text="{x:Bind PackageId, Mode=OneTime}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Padding="8,4" />
+                            </DataTemplate>
+                        </controls:DataGridTemplateColumn.CellTemplate>
+                    </controls:DataGridTemplateColumn>
+                    <controls:DataGridTemplateColumn Header="Version" Tag="PackageVersion" Width="SizeToCells" MinWidth="0">
+                        <controls:DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate x:DataType="models:ThirdPartyLicenseEntry">
+                                <TextBlock Text="{x:Bind PackageVersion, Mode=OneTime}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Padding="8,4" />
+                            </DataTemplate>
+                        </controls:DataGridTemplateColumn.CellTemplate>
+                    </controls:DataGridTemplateColumn>
+                    <controls:DataGridTemplateColumn Header="Author" Tag="Authors" Width="2*" MinWidth="0">
+                        <controls:DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate x:DataType="models:ThirdPartyLicenseEntry">
+                                <TextBlock Text="{x:Bind Authors, Mode=OneTime}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Padding="8,4" />
+                            </DataTemplate>
+                        </controls:DataGridTemplateColumn.CellTemplate>
+                    </controls:DataGridTemplateColumn>
+                    <controls:DataGridTemplateColumn Header="License" Tag="License" Width="SizeToCells" MinWidth="0">
+                        <controls:DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate x:DataType="models:ThirdPartyLicenseEntry">
+                                <TextBlock Text="{x:Bind License, Mode=OneTime}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Padding="8,4" />
+                            </DataTemplate>
+                        </controls:DataGridTemplateColumn.CellTemplate>
+                    </controls:DataGridTemplateColumn>
+                    <controls:DataGridTemplateColumn Header="License file" Tag="LicenseFile" CanUserSort="False" Width="SizeToHeader" MinWidth="0">
+                        <controls:DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate x:DataType="models:ThirdPartyLicenseEntry">
+                                <Button
+                                    Tag="{x:Bind LicenseFilePath, Mode=OneTime}"
+                                    Content="View"
+                                    Click="LicenseFileButton_Click"
+                                    Margin="8,4"
+                                    MinWidth="0"
+                                    Visibility="{x:Bind LicenseFileVisibility, Mode=OneTime}" />
+                            </DataTemplate>
+                        </controls:DataGridTemplateColumn.CellTemplate>
+                    </controls:DataGridTemplateColumn>
+                    <controls:DataGridTemplateColumn Header="Project" Tag="PackageProjectUrl" CanUserSort="False" Width="SizeToHeader" MinWidth="0">
+                        <controls:DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate x:DataType="models:ThirdPartyLicenseEntry">
+                                <HyperlinkButton
+                                    NavigateUri="{x:Bind PackageProjectUri, Mode=OneTime}"
+                                    Content="Open"
+                                    Margin="8,4"
+                                    Padding="0"
+                                    MinWidth="0"
+                                    Visibility="{x:Bind PackageProjectVisibility, Mode=OneTime}" />
+                            </DataTemplate>
+                        </controls:DataGridTemplateColumn.CellTemplate>
+                    </controls:DataGridTemplateColumn>
+                </controls:DataGrid.Columns>
+            </controls:DataGrid>
         </StackPanel>
     </ScrollViewer>
 </Page>
