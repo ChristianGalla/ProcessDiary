@@ -94,5 +94,10 @@ internal sealed class PersistentSettingsStore : IDiarySettingsStore, IHostedServ
         !string.IsNullOrWhiteSpace(settings.ScreenshotFolder)
         && settings.CaptureInterval > TimeSpan.Zero
         && settings.ForegroundPollInterval > TimeSpan.Zero
-        && (settings.RetentionDays is null || settings.RetentionDays > 0);
+        && (settings.RetentionDays is null || settings.RetentionDays > 0)
+        && Enum.IsDefined(settings.OverlayCorner)
+        && double.IsFinite(settings.OverlayHorizontalMargin)
+        && settings.OverlayHorizontalMargin >= 0
+        && double.IsFinite(settings.OverlayVerticalMargin)
+        && settings.OverlayVerticalMargin >= 0;
 }

@@ -24,10 +24,16 @@ internal sealed class IndicatorWindowStyler : IIndicatorWindowStyler
     /// <summary>Initializes the styler.</summary>
     public IndicatorWindowStyler()
     {
-        _subclassProc = OnWindowMessage;    }
+        _subclassProc = OnWindowMessage;
+    }
 
     /// <inheritdoc />
-    public unsafe bool ApplyDotStyle(nint windowHandle, int diameterDips, int marginDips)
+    public unsafe bool ApplyDotStyle(
+        nint windowHandle,
+        int diameterDips,
+        OverlayCorner corner,
+        double horizontalMarginDips,
+        double verticalMarginDips)
     {
         var window = new HWND(windowHandle);
 
@@ -66,18 +72,28 @@ internal sealed class IndicatorWindowStyler : IIndicatorWindowStyler
 
         var scale = PInvoke.GetDpiForWindow(window) / BaseDpi;
         var diameter = (int)Math.Ceiling(diameterDips * scale);
-        var margin = (int)Math.Ceiling(marginDips * scale);
+        var workWidth = info.rcWork.right - info.rcWork.left;
+        var workHeight = info.rcWork.bottom - info.rcWork.top;
+        var maxHorizontalMargin = Math.Max(0, workWidth - diameter);
+        var maxVerticalMargin = Math.Max(0, workHeight - diameter);
+        var horizontalMargin = (int)Math.Ceiling(Math.Clamp(horizontalMarginDips * scale, 0, maxHorizontalMargin));
+        var verticalMargin = (int)Math.Ceiling(Math.Clamp(verticalMarginDips * scale, 0, maxVerticalMargin));
 
-        var placed = PInvoke.SetWindowPos(
+        var x = corner is OverlayCorner.TopLeft or OverlayCorner.BottomLeft
+            ? info.rcWork.left + horizontalMargin
+            : info.rcWork.right - diameter - horizontalMargin;
+        var y = corner is OverlayCorner.TopLeft or OverlayCorner.TopRight
+            ? info.rcWork.top + verticalMargin
+            : info.rcWork.bottom - diameter - verticalMargin;
+
+        return PInvoke.SetWindowPos(
             window,
             TopMost,
-            info.rcWork.right - diameter - margin,
-            info.rcWork.top + margin,
+            x,
+            y,
             diameter,
             diameter,
             flags | SET_WINDOW_POS_FLAGS.SWP_FRAMECHANGED);
-
-        return placed;
     }
 
     /// <inheritdoc />
@@ -101,4 +117,4 @@ internal sealed class IndicatorWindowStyler : IIndicatorWindowStyler
 
         return PInvoke.DefSubclassProc(window, message, wParam, lParam);
     }
-    }
+}

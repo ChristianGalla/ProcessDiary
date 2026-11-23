@@ -14,21 +14,27 @@ namespace ProcessDiary.Views;
 public sealed partial class RecordingOverlayWindow : Window
 {
     private const int DiameterDips = 16;
-    private const int MarginDips = 16;
 
     private static readonly TimeSpan KeepOnTopInterval = TimeSpan.FromMilliseconds(500);
 
     private readonly IIndicatorWindowStyler _styler;
+    private readonly IDiarySettingsStore _settings;
     private DispatcherQueueTimer? _keepOnTopTimer;
 
     /// <summary>Initializes the overlay.</summary>
     /// <param name="viewModel">Provides the recording state.</param>
     /// <param name="protection">Excludes the overlay from screen capture.</param>
     /// <param name="styler">Shapes and places the overlay as a dot in the screen corner.</param>
-    public RecordingOverlayWindow(MainViewModel viewModel, IWindowCaptureProtection protection, IIndicatorWindowStyler styler)
+    /// <param name="settings">Provides the current overlay position settings.</param>
+    public RecordingOverlayWindow(
+        MainViewModel viewModel,
+        IWindowCaptureProtection protection,
+        IIndicatorWindowStyler styler,
+        IDiarySettingsStore settings)
     {
         ViewModel = viewModel;
         _styler = styler;
+        _settings = settings;
         InitializeComponent();
 
         var presenter = OverlappedPresenter.Create();
@@ -41,20 +47,21 @@ public sealed partial class RecordingOverlayWindow : Window
         AppWindow.IsShownInSwitchers = false;
 
         protection.ExcludeFromCapture(WindowNative.GetWindowHandle(this));
+        _settings.Changed += OnSettingsChanged;
     }
 
     /// <summary>Gets the view model that provides the recording state.</summary>
     public MainViewModel ViewModel { get; }
 
-    /// <summary>Shows the overlay as a dot in the top-right corner of the primary monitor.</summary>
+    /// <summary>Shows the overlay as a dot in the configured corner of the primary monitor.</summary>
     public void Show()
     {
         var handle = WindowNative.GetWindowHandle(this);
 
         // The shape is applied before and after activation, because showing the window can reset its size and frame.
-        _styler.ApplyDotStyle(handle, DiameterDips, MarginDips);
+        ApplyPosition(handle);
         Activate();
-        _styler.ApplyDotStyle(handle, DiameterDips, MarginDips);
+        ApplyPosition(handle);
 
         if (_keepOnTopTimer is null)
         {
@@ -64,5 +71,21 @@ public sealed partial class RecordingOverlayWindow : Window
         }
 
         _keepOnTopTimer.Start();
+    }
+
+    private void OnSettingsChanged(object? sender, EventArgs e)
+    {
+        DispatcherQueue.TryEnqueue(() => ApplyPosition(WindowNative.GetWindowHandle(this)));
+    }
+
+    private void ApplyPosition(nint handle)
+    {
+        var current = _settings.Current;
+        _styler.ApplyDotStyle(
+            handle,
+            DiameterDips,
+            current.OverlayCorner,
+            current.OverlayHorizontalMargin,
+            current.OverlayVerticalMargin);
     }
 }

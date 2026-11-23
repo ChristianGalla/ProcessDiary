@@ -37,6 +37,25 @@
             </StackPanel>
 
             <StackPanel Spacing="8">
+                <TextBlock Text="Recording indicator" Style="{StaticResource SubtitleTextBlockStyle}" />
+                <ComboBox
+                    Header="Corner"
+                    DisplayMemberPath="Label"
+                    ItemsSource="{x:Bind ViewModel.OverlayCorners}"
+                    SelectedItem="{x:Bind ViewModel.SelectedOverlayCorner, Mode=TwoWay}" />
+                <NumberBox
+                    Header="Horizontal margin (pixels)"
+                    Minimum="0"
+                    SpinButtonPlacementMode="Inline"
+                    Value="{x:Bind ViewModel.OverlayHorizontalMargin, Mode=TwoWay}" />
+                <NumberBox
+                    Header="Vertical margin (pixels)"
+                    Minimum="0"
+                    SpinButtonPlacementMode="Inline"
+                    Value="{x:Bind ViewModel.OverlayVerticalMargin, Mode=TwoWay}" />
+            </StackPanel>
+
+            <StackPanel Spacing="8">
                 <TextBlock Text="Retention" Style="{StaticResource SubtitleTextBlockStyle}" />
                 <ToggleSwitch
                     Header="Delete old data automatically"

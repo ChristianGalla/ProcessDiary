@@ -16,6 +16,14 @@ public sealed partial class SettingsViewModel : ObservableObject
         new(CaptureMode.WholeDesktop, "Whole desktop")
     ];
 
+    private static readonly IReadOnlyList<OverlayCornerOption> AllOverlayCorners =
+    [
+        new(OverlayCorner.TopLeft, "Top left"),
+        new(OverlayCorner.TopRight, "Top right"),
+        new(OverlayCorner.BottomLeft, "Bottom left"),
+        new(OverlayCorner.BottomRight, "Bottom right")
+    ];
+
     private readonly IDiarySettingsStore _store;
     private readonly IDataManagementService _data;
     private readonly IFolderPickerService _folderPicker;
@@ -35,6 +43,49 @@ public sealed partial class SettingsViewModel : ObservableObject
 
     [ObservableProperty]
     public partial bool CaptureOnActivityChange { get; set; }
+
+    private OverlayCornerOption _selectedOverlayCorner = AllOverlayCorners[1];
+    private double _overlayHorizontalMargin = 16;
+    private double _overlayVerticalMargin = 30;
+
+    /// <summary>Gets or sets the selected indicator corner.</summary>
+    public OverlayCornerOption SelectedOverlayCorner
+    {
+        get => _selectedOverlayCorner;
+        set
+        {
+            if (SetProperty(ref _selectedOverlayCorner, value))
+            {
+                QueueSave();
+            }
+        }
+    }
+
+    /// <summary>Gets or sets the horizontal indicator margin.</summary>
+    public double OverlayHorizontalMargin
+    {
+        get => _overlayHorizontalMargin;
+        set
+        {
+            if (SetProperty(ref _overlayHorizontalMargin, value))
+            {
+                QueueSave();
+            }
+        }
+    }
+
+    /// <summary>Gets or sets the vertical indicator margin.</summary>
+    public double OverlayVerticalMargin
+    {
+        get => _overlayVerticalMargin;
+        set
+        {
+            if (SetProperty(ref _overlayVerticalMargin, value))
+            {
+                QueueSave();
+            }
+        }
+    }
 
     [ObservableProperty]
     public partial bool RetentionEnabled { get; set; }
@@ -69,6 +120,9 @@ public sealed partial class SettingsViewModel : ObservableObject
     /// <summary>Gets the selectable capture modes.</summary>
     public IReadOnlyList<CaptureModeOption> Modes => AllModes;
 
+    /// <summary>Gets the selectable overlay corners.</summary>
+    public IReadOnlyList<OverlayCornerOption> OverlayCorners => AllOverlayCorners;
+
     /// <summary>Shows the stored settings.</summary>
     public void Reload()
     {
@@ -80,6 +134,9 @@ public sealed partial class SettingsViewModel : ObservableObject
             IntervalSeconds = current.CaptureInterval.TotalSeconds;
             SelectedMode = AllModes.First(m => m.Mode == current.CaptureMode);
             CaptureOnActivityChange = current.CaptureOnActivityChange;
+            SelectedOverlayCorner = AllOverlayCorners.First(c => c.Corner == current.OverlayCorner);
+            OverlayHorizontalMargin = current.OverlayHorizontalMargin;
+            OverlayVerticalMargin = current.OverlayVerticalMargin;
             RetentionEnabled = current.RetentionDays is not null;
             RetentionDays = current.RetentionDays ?? 30;
             Message = null;
@@ -152,6 +209,13 @@ public sealed partial class SettingsViewModel : ObservableObject
             return;
         }
 
+        if (!double.IsFinite(OverlayHorizontalMargin) || OverlayHorizontalMargin < 0
+            || !double.IsFinite(OverlayVerticalMargin) || OverlayVerticalMargin < 0)
+        {
+            Message = "Overlay margins cannot be negative.";
+            return;
+        }
+
         var previousRetention = _store.Current.RetentionDays;
         var settings = _store.Current with
         {
@@ -159,7 +223,10 @@ public sealed partial class SettingsViewModel : ObservableObject
             CaptureMode = SelectedMode.Mode,
             CaptureInterval = TimeSpan.FromSeconds(IntervalSeconds),
             CaptureOnActivityChange = CaptureOnActivityChange,
-            RetentionDays = RetentionEnabled ? (int)RetentionDays : null
+            RetentionDays = RetentionEnabled ? (int)RetentionDays : null,
+            OverlayCorner = SelectedOverlayCorner.Corner,
+            OverlayHorizontalMargin = OverlayHorizontalMargin,
+            OverlayVerticalMargin = OverlayVerticalMargin
         };
 
         try
