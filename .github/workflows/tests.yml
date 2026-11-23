@@ -30,6 +30,7 @@ on:
 
 permissions:
   contents: read
+  checks: write
 
 jobs:
   test:
@@ -54,6 +55,14 @@ jobs:
 
       - name: Test
         run: dotnet test ProcessDiary.Tests/ProcessDiary.Tests.csproj --no-restore --configuration Release --logger "trx;LogFileName=test-results.trx"
+
+      - name: Publish test results
+        if: always()
+        uses: dorny/test-reporter@v2
+        with:
+          name: Unit tests
+          path: "**/TestResults/*.trx"
+          reporter: dotnet-trx
 
       - name: Upload test results
         if: always()
