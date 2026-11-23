@@ -1,12 +1,15 @@
-<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
-  <Package Name="ProcessDiary"
-		   Manufacturer="Christian Galla"
-		   Version="$(Version)"
-		   UpgradeCode="6d0418ff-2e2e-4547-998f-130f0e5f429c"
-		   Scope="perMachine">
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+	 xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+	<Package Name="ProcessDiary"
+			 Manufacturer="Christian Galla"
+			 Version="$(Version)"
+			 UpgradeCode="6d0418ff-2e2e-4547-998f-130f0e5f429c"
+			 Scope="perMachine">
 
 	<MajorUpgrade DowngradeErrorMessage="A newer version of ProcessDiary is already installed." />
 	<MediaTemplate EmbedCab="yes" />
+	<WixVariable Id="WixUILicenseRtf" Value="LICENSE.rtf" />
+	<ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
 
 	<StandardDirectory Id="ProgramFiles64Folder">
 	  <Directory Id="INSTALLFOLDER" Name="ProcessDiary">
