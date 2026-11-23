@@ -4,7 +4,10 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
-  <Folder Name="/.github/" />
+  <Folder Name="/.github/">
+    <File Path=".github/copilot-instructions.md" />
+    <File Path=".github/dependabot.yml" />
+  </Folder>
   <Folder Name="/plan/" />
   <Folder Name="/Solution Items/">
     <File Path=".gitattributes" />
