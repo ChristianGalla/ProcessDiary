@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using ProcessDiary.Application.Privacy;
 using ProcessDiary.Domain.Abstractions;
 using ProcessDiary.Services;
+using System.ComponentModel;
 
 namespace ProcessDiary.ViewModels;
 
@@ -28,6 +29,7 @@ public sealed partial class SettingsViewModel : ObservableObject
     private readonly IDataManagementService _data;
     private readonly IFolderPickerService _folderPicker;
     private readonly IDialogService _dialogs;
+    private readonly IStartupRegistrationService _startupRegistration;
     private readonly ILogger<SettingsViewModel> _logger;
     private readonly SemaphoreSlim _saveGate = new(1, 1);
     private bool _loading;
@@ -94,26 +96,71 @@ public sealed partial class SettingsViewModel : ObservableObject
     public partial double RetentionDays { get; set; } = 30;
 
     [ObservableProperty]
-    public partial string? Message { get; set; }
+    public partial bool StartAutomatically { get; set; }
+
+    private bool _isStartupStateLoading;
+    private bool _canChangeStartup;
+
+    /// <summary>Gets whether the automatic startup state is still being loaded.</summary>
+    public bool IsStartupStateLoading
+    {
+        get => _isStartupStateLoading;
+        private set => SetProperty(ref _isStartupStateLoading, value);
+    }
+
+    /// <summary>Gets whether the automatic startup toggle can currently be changed.</summary>
+    public bool CanChangeStartup
+    {
+        get => _canChangeStartup;
+        private set => SetProperty(ref _canChangeStartup, value);
+    }
+
+    [ObservableProperty]
+    public partial bool StartInBackground { get; set; }
+
+    [ObservableProperty]
+    public partial string? ScreenshotFolderError { get; set; }
+
+    [ObservableProperty]
+    public partial string? CaptureIntervalError { get; set; }
+
+    [ObservableProperty]
+    public partial string? OverlayHorizontalMarginError { get; set; }
+
+    [ObservableProperty]
+    public partial string? OverlayVerticalMarginError { get; set; }
+
+    [ObservableProperty]
+    public partial string? RetentionDaysError { get; set; }
+
+    [ObservableProperty]
+    public partial string? DeleteMessage { get; set; }
+
+    [ObservableProperty]
+    public partial string? DeleteError { get; set; }
 
     /// <summary>Initializes the view model and loads the current settings.</summary>
     /// <param name="store">Stores the settings.</param>
     /// <param name="data">Deletes recorded data.</param>
     /// <param name="folderPicker">Lets the user choose the screenshot folder.</param>
     /// <param name="dialogs">Asks for confirmation before deleting.</param>
+    /// <param name="startupRegistration">Registers automatic startup for the current user.</param>
     /// <param name="logger">The logger.</param>
     public SettingsViewModel(
         IDiarySettingsStore store,
         IDataManagementService data,
         IFolderPickerService folderPicker,
         IDialogService dialogs,
+        IStartupRegistrationService startupRegistration,
         ILogger<SettingsViewModel> logger)
     {
         _store = store;
         _data = data;
         _folderPicker = folderPicker;
         _dialogs = dialogs;
+        _startupRegistration = startupRegistration;
         _logger = logger;
+        _startupRegistration.PropertyChanged += OnStartupRegistrationChanged;
         Reload();
     }
 
@@ -139,7 +186,15 @@ public sealed partial class SettingsViewModel : ObservableObject
             OverlayVerticalMargin = current.OverlayVerticalMargin;
             RetentionEnabled = current.RetentionDays is not null;
             RetentionDays = current.RetentionDays ?? 30;
-            Message = null;
+            StartAutomatically = _startupRegistration.IsEnabled == true;
+            IsStartupStateLoading = _startupRegistration.IsEnabled is null;
+            CanChangeStartup = _startupRegistration.IsEnabled is not null;
+            StartInBackground = current.StartInBackground;
+            ScreenshotFolderError = null;
+            CaptureIntervalError = null;
+            OverlayHorizontalMarginError = null;
+            OverlayVerticalMarginError = null;
+            RetentionDaysError = null;
         }
         finally
         {
@@ -158,6 +213,31 @@ public sealed partial class SettingsViewModel : ObservableObject
     partial void OnRetentionEnabledChanged(bool value) => QueueSave();
 
     partial void OnRetentionDaysChanged(double value) => QueueSave();
+
+    partial void OnStartAutomaticallyChanged(bool value) => QueueSave();
+
+    partial void OnStartInBackgroundChanged(bool value) => QueueSave();
+
+    private void OnStartupRegistrationChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName != nameof(IStartupRegistrationService.IsEnabled))
+        {
+            return;
+        }
+
+        var loading = _loading;
+        _loading = true;
+        try
+        {
+            StartAutomatically = _startupRegistration.IsEnabled == true;
+            IsStartupStateLoading = _startupRegistration.IsEnabled is null;
+            CanChangeStartup = _startupRegistration.IsEnabled is not null;
+        }
+        finally
+        {
+            _loading = loading;
+        }
+    }
 
     private void QueueSave()
     {
@@ -191,33 +271,44 @@ public sealed partial class SettingsViewModel : ObservableObject
 
     private async Task SaveCoreAsync()
     {
+        ScreenshotFolderError = null;
+        CaptureIntervalError = null;
+        RetentionDaysError = null;
+        OverlayHorizontalMarginError = null;
+        OverlayVerticalMarginError = null;
+
         if (!Path.IsPathRooted(ScreenshotFolder))
         {
-            Message = "Choose a full folder path for the screenshots.";
+            ScreenshotFolderError = "Choose a full folder path for the screenshots.";
             return;
         }
 
         if (double.IsNaN(IntervalSeconds) || IntervalSeconds < 5)
         {
-            Message = "The screenshot interval must be at least 5 seconds.";
+            CaptureIntervalError = "The screenshot interval must be at least 5 seconds.";
             return;
         }
 
         if (RetentionEnabled && (double.IsNaN(RetentionDays) || RetentionDays < 1))
         {
-            Message = "Keep data for at least 1 day.";
+            RetentionDaysError = "Keep data for at least 1 day.";
             return;
         }
 
-        if (!double.IsFinite(OverlayHorizontalMargin) || OverlayHorizontalMargin < 0
-            || !double.IsFinite(OverlayVerticalMargin) || OverlayVerticalMargin < 0)
+        if (!double.IsFinite(OverlayHorizontalMargin) || OverlayHorizontalMargin < 0)
         {
-            Message = "Overlay margins cannot be negative.";
+            OverlayHorizontalMarginError = "The horizontal margin cannot be negative.";
             return;
         }
 
-        var previousRetention = _store.Current.RetentionDays;
-        var settings = _store.Current with
+        if (!double.IsFinite(OverlayVerticalMargin) || OverlayVerticalMargin < 0)
+        {
+            OverlayVerticalMarginError = "The vertical margin cannot be negative.";
+            return;
+        }
+
+        var previousSettings = _store.Current;
+        var settings = previousSettings with
         {
             ScreenshotFolder = ScreenshotFolder,
             CaptureMode = SelectedMode.Mode,
@@ -226,23 +317,30 @@ public sealed partial class SettingsViewModel : ObservableObject
             RetentionDays = RetentionEnabled ? (int)RetentionDays : null,
             OverlayCorner = SelectedOverlayCorner.Corner,
             OverlayHorizontalMargin = OverlayHorizontalMargin,
-            OverlayVerticalMargin = OverlayVerticalMargin
+            OverlayVerticalMargin = OverlayVerticalMargin,
+            StartInBackground = StartInBackground
         };
 
         try
         {
+            if (StartAutomatically != _startupRegistration.IsEnabled)
+            {
+                await _startupRegistration.SetEnabledAsync(StartAutomatically, CancellationToken.None);
+            }
+
             await _store.SaveAsync(settings, CancellationToken.None);
-            if (settings.RetentionDays != previousRetention)
+            if (settings.RetentionDays != previousSettings.RetentionDays)
             {
                 await _data.ApplyRetentionAsync(CancellationToken.None);
             }
 
-            Message = "Settings saved.";
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Settings could not be saved");
-            Message = "The settings could not be saved.";
+            await _dialogs.ShowErrorAsync(
+                "Settings could not be saved",
+                "The settings could not be saved. Please try again.");
         }
     }
 
@@ -253,6 +351,8 @@ public sealed partial class SettingsViewModel : ObservableObject
             "Delete all data?",
             "All sessions and screenshots, including the image files, will be deleted permanently.",
             "Delete everything");
+        DeleteMessage = null;
+        DeleteError = null;
         if (!confirmed)
         {
             return;
@@ -261,12 +361,12 @@ public sealed partial class SettingsViewModel : ObservableObject
         try
         {
             await _data.DeleteAllAsync(CancellationToken.None);
-            Message = "All data was deleted.";
+            DeleteMessage = "All data was deleted.";
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Data could not be deleted");
-            Message = "Some data could not be deleted.";
+            DeleteError = "Some data could not be deleted.";
         }
     }
 }

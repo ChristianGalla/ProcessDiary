@@ -32,6 +32,8 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<IDiarySettingsStore>(sp => sp.GetRequiredService<PersistentSettingsStore>());
         services.AddSingleton<IWindowCaptureProtection, WindowCaptureProtection>();
         services.AddSingleton<IIndicatorWindowStyler, IndicatorWindowStyler>();
+        services.AddSingleton<StartupRegistrationService>();
+        services.AddSingleton<IStartupRegistrationService>(sp => sp.GetRequiredService<StartupRegistrationService>());
 
         services.AddSingleton<IProcessSessionRepository, ProcessSessionRepository>();
         services.AddSingleton<IScreenshotRepository, ScreenshotRepository>();
@@ -43,6 +45,7 @@ public static class InfrastructureServiceCollectionExtensions
 
         // Hosted services start in registration order: the database must exist before recording starts.
         services.AddHostedService(sp => sp.GetRequiredService<PersistentSettingsStore>());
+        services.AddHostedService(sp => sp.GetRequiredService<StartupRegistrationService>());
         services.AddHostedService<DiaryDatabaseInitializer>();
         services.AddSingleton<CaptureScheduler>();
         services.AddSingleton<ICaptureScheduler>(sp => sp.GetRequiredService<CaptureScheduler>());

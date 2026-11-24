@@ -19,6 +19,7 @@
                     <TextBox Header="Folder" Text="{x:Bind ViewModel.ScreenshotFolder, Mode=TwoWay}" />
                     <Button Grid.Column="1" Content="Browse…" VerticalAlignment="Bottom" Command="{x:Bind ViewModel.BrowseCommand}" />
                 </Grid>
+                <TextBlock Text="{x:Bind ViewModel.ScreenshotFolderError, Mode=OneWay}" Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
                 <NumberBox
                     Header="Take a screenshot every (seconds)"
                     Minimum="5"
@@ -26,6 +27,7 @@
                     SmallChange="5"
                     LargeChange="60"
                     Value="{x:Bind ViewModel.IntervalSeconds, Mode=TwoWay}" />
+                <TextBlock Text="{x:Bind ViewModel.CaptureIntervalError, Mode=OneWay}" Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
                 <ComboBox
                     Header="Capture"
                     DisplayMemberPath="Label"
@@ -48,11 +50,13 @@
                     Minimum="0"
                     SpinButtonPlacementMode="Inline"
                     Value="{x:Bind ViewModel.OverlayHorizontalMargin, Mode=TwoWay}" />
+                <TextBlock Text="{x:Bind ViewModel.OverlayHorizontalMarginError, Mode=OneWay}" Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
                 <NumberBox
                     Header="Vertical margin (pixels)"
                     Minimum="0"
                     SpinButtonPlacementMode="Inline"
                     Value="{x:Bind ViewModel.OverlayVerticalMargin, Mode=TwoWay}" />
+                <TextBlock Text="{x:Bind ViewModel.OverlayVerticalMarginError, Mode=OneWay}" Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
             </StackPanel>
 
             <StackPanel Spacing="8">
@@ -66,10 +70,20 @@
                     SpinButtonPlacementMode="Inline"
                     IsEnabled="{x:Bind ViewModel.RetentionEnabled, Mode=OneWay}"
                     Value="{x:Bind ViewModel.RetentionDays, Mode=TwoWay}" />
+                <TextBlock Text="{x:Bind ViewModel.RetentionDaysError, Mode=OneWay}" Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
             </StackPanel>
 
-            <StackPanel Orientation="Horizontal" Spacing="12">
-                <TextBlock Text="{x:Bind ViewModel.Message, Mode=OneWay}" VerticalAlignment="Center" />
+            <StackPanel Spacing="8">
+                <TextBlock Text="Startup" Style="{StaticResource SubtitleTextBlockStyle}" />
+                <ToggleSwitch
+                    Header="Start ProcessDiary when I sign in"
+                    IsOn="{x:Bind ViewModel.StartAutomatically, Mode=TwoWay}"
+                    IsEnabled="{x:Bind ViewModel.CanChangeStartup, Mode=OneWay}" />
+                <ToggleSwitch
+                    Header="Start in the background"
+                    IsOn="{x:Bind ViewModel.StartInBackground, Mode=TwoWay}"
+                    OffContent="Show the main window"
+                    OnContent="Keep the main window hidden; use the tray icon to open it" />
             </StackPanel>
 
             <StackPanel Spacing="8">
@@ -78,6 +92,8 @@
                     TextWrapping="Wrap"
                     Text="Everything ProcessDiary records stays on this computer. Nothing is sent anywhere." />
                 <Button Content="Delete all data…" Command="{x:Bind ViewModel.DeleteAllCommand}" />
+                <TextBlock Text="{x:Bind ViewModel.DeleteMessage, Mode=OneWay}" Foreground="{ThemeResource SystemFillColorSuccessBrush}" />
+                <TextBlock Text="{x:Bind ViewModel.DeleteError, Mode=OneWay}" Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
             </StackPanel>
         </StackPanel>
     </ScrollViewer>

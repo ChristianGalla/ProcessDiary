@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using ProcessDiary.Application;
+using ProcessDiary.Domain.Abstractions;
 using ProcessDiary.Infrastructure;
 using ProcessDiary.Infrastructure.Logging;
 using ProcessDiary.Services;
@@ -37,11 +38,13 @@ public partial class App : Microsoft.UI.Xaml.Application
 
         host.Services.GetRequiredService<TrayIconService>().Initialize();
 
-        // Recording is never hidden: the overlay shows the state from the first moment.
-        // WinUI renders the overlay content only after its first activation, so the main window takes the focus back afterwards.
+        // Recording is never hidden: the overlay and tray icon show the state from the first moment.
         _overlay = host.Services.GetRequiredService<RecordingOverlayWindow>();
         _overlay.Show();
-        _window.Activate();
+        if (!host.Services.GetRequiredService<IDiarySettingsProvider>().Current.StartInBackground)
+        {
+            _window.Activate();
+        }
 
         host.Services.GetRequiredService<ILogger<App>>().LogInformation("ProcessDiary started");
     }

@@ -2,7 +2,7 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace ProcessDiary.Services;
 
-/// <summary>Shows confirmation dialogs in the main window.</summary>
+/// <summary>Shows dialogs in the main window.</summary>
 public sealed class DialogService : IDialogService
 {
     private readonly IShellWindowService _shell;
@@ -30,5 +30,25 @@ public sealed class DialogService : IDialogService
         };
 
         return await dialog.ShowAsync() == ContentDialogResult.Primary;
+    }
+
+    /// <inheritdoc />
+    public async Task ShowErrorAsync(string title, string message)
+    {
+        if (_shell.XamlRoot is not { } root)
+        {
+            return;
+        }
+
+        var dialog = new ContentDialog
+        {
+            Title = title,
+            Content = message,
+            CloseButtonText = "OK",
+            DefaultButton = ContentDialogButton.Close,
+            XamlRoot = root
+        };
+
+        await dialog.ShowAsync();
     }
 }
